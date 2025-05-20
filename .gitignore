@@ -1,0 +1,11 @@
+.DS_Store
+.Rprofile
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+libreview.Rproj
+data/
+renv.lock
+renv/
+

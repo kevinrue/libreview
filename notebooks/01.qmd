@@ -1,0 +1,73 @@
+---
+title: "First notebook"
+author: "Kevin Rue"
+format: html
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(tidyverse)
+library(lubridate)
+```
+
+
+## Import data
+
+```{r}
+glucose_data <- read_csv("../data/KevinRue_glucose_19-5-2025.csv", skip = 1)
+```
+
+## Time series
+
+### Global
+
+```{r}
+#| echo: false
+glucose_data %>% 
+  select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
+  mutate(
+     `Device Timestamp` = as_datetime(dmy_hm(`Device Timestamp`))
+  ) %>% 
+  filter(!is.na(`Historic Glucose mmol/L`)) %>% 
+  ggplot() +
+  geom_line(aes(`Device Timestamp`, `Historic Glucose mmol/L`)) +
+  theme(
+    axis.text.x = element_text(angle = 90)
+  ) +
+  theme_bw()
+```
+
+### Overlay days
+
+```{r}
+#| echo: false
+glucose_data %>% 
+  select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
+  separate(`Device Timestamp`, c("Date", "Time"), sep = " ") %>% 
+  mutate(
+    `Device Timestamp` = as_datetime(ymd_hm(paste(Sys.Date(), Time)))
+  ) %>% 
+  filter(!is.na(`Historic Glucose mmol/L`)) %>% 
+  ggplot() +
+  annotate(
+    geom = "rect",
+    xmin = ymd_hm(paste(Sys.Date(), "00:00")),
+    xmax = ymd_hm(paste(Sys.Date() + 1, "00:00")),
+    ymin = 3, ymax = 10,
+    fill = "palegreen", alpha = 0.5) +
+  geom_line(aes(`Device Timestamp`, `Historic Glucose mmol/L`, group = Date)) +
+  scale_x_datetime(
+    date_label = "%H:%M",
+    expand = c(0, 0, 0, 0),
+    oob = scales::squish_infinite
+  ) +
+  scale_y_continuous(limits = c(0, 21), breaks = seq(0, 21, 3)) +
+  theme_bw() +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel.grid.minor.y = element_blank()
+  ) +
+  theme(plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"))
+```

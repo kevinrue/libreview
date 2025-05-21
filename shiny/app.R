@@ -3,8 +3,10 @@ library(bslib)
 library(ggplot2)
 
 source("plot_time_all.R")
+source("plot_time_overlaid.R")
 
 glucose_data <- read_csv("../data/KevinRue_glucose_21-5-2025.csv", skip = 1, show_col_types = FALSE)
+date_annotations <- read_csv("../data/date_annotations.csv", col_names = c("date", "type"), show_col_types = FALSE)
 
 ui <- page_navbar(
   title = "LibreView",
@@ -17,7 +19,10 @@ ui <- page_navbar(
     p("TODO: restrict to last seven days."),
     plotOutput("plot_time_all")
   ),
-  nav_panel(title = "Two", p("Second page content.")),
+  nav_panel(
+    title = "Overlay days",
+    plotOutput("plot_time_overlaid")
+  ),
   nav_panel(title = "Three", p("Third page content.")),
   nav_spacer(),
   nav_menu(
@@ -32,6 +37,7 @@ ui <- page_navbar(
 server <- function(input, output) {
   
   output$plot_time_all <- renderPlot({plot_time_all(glucose_data)})
+  output$plot_time_overlaid <- renderPlot({plot_time_overlaid(glucose_data, date_annotations)})
   
 }
 

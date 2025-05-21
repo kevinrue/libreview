@@ -21,7 +21,15 @@ ui <- page_navbar(
   ),
   nav_panel(
     title = "Overlay days",
-    plotOutput("plot_time_overlaid")
+    layout_columns(
+      col_widths = c(3, 9),
+      card(
+        selectInput("day_type", "Type", sort(unique(date_annotations$type)))
+      ),
+      card(
+        plotOutput("plot_time_overlaid")
+      )
+    )
   ),
   nav_panel(title = "Three", p("Third page content.")),
   nav_spacer(),
@@ -37,7 +45,7 @@ ui <- page_navbar(
 server <- function(input, output) {
   
   output$plot_time_all <- renderPlot({plot_time_all(glucose_data)})
-  output$plot_time_overlaid <- renderPlot({plot_time_overlaid(glucose_data, date_annotations)})
+  output$plot_time_overlaid <- renderPlot({plot_time_overlaid(glucose_data, date_annotations, input$day_type)})
   
 }
 

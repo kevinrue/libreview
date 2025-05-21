@@ -13,8 +13,8 @@ ui <- page_navbar(
     theme = "dark"
   ),
   nav_panel(
-    title = "One",
-    p("Full timeline (TODO: restrict to last seven days)."),
+    title = "Full timeline",
+    p("TODO: restrict to last seven days."),
     plotOutput("plot_time_all")
   ),
   nav_panel(title = "Two", p("Second page content.")),

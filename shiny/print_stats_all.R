@@ -19,6 +19,9 @@ print_stats_all <- function(glucose_data) {
   mean_value <- plot_data %>% 
     pull(`Historic Glucose mmol/L`) %>% 
     mean()
+  q95_value <- plot_data %>% 
+    pull(`Historic Glucose mmol/L`) %>% 
+    quantile(0.95)
   max_value <- plot_data %>% 
     pull(`Historic Glucose mmol/L`) %>% 
     max()
@@ -35,6 +38,10 @@ print_stats_all <- function(glucose_data) {
     filter(`Device Timestamp` > day_start & `Device Timestamp` < day_end) %>% 
     pull(`Historic Glucose mmol/L`) %>% 
     mean()
+  q95_value_day <- plot_data %>% 
+    filter(`Device Timestamp` > day_start & `Device Timestamp` < day_end) %>% 
+    pull(`Historic Glucose mmol/L`) %>% 
+    quantile(0.95)
   max_value_day <- plot_data %>% 
     filter(`Device Timestamp` > day_start & `Device Timestamp` < day_end) %>% 
     pull(`Historic Glucose mmol/L`) %>% 
@@ -52,6 +59,10 @@ print_stats_all <- function(glucose_data) {
     filter(`Device Timestamp` < day_start | `Device Timestamp` > day_end) %>% 
     pull(`Historic Glucose mmol/L`) %>% 
     mean()
+  q95_value_night <- plot_data %>% 
+    filter(`Device Timestamp` < day_start | `Device Timestamp` > day_end) %>% 
+    pull(`Historic Glucose mmol/L`) %>% 
+    quantile(0.95)
   max_value_night <- plot_data %>% 
     filter(`Device Timestamp` < day_start | `Device Timestamp` > day_end) %>% 
     pull(`Historic Glucose mmol/L`) %>% 
@@ -65,6 +76,7 @@ print_stats_all <- function(glucose_data) {
         tags$li("Minimum: ", min_value),
         tags$li("Mean: ", format(mean_value, digits = 2)),
         tags$li("Median: ", format(median_value, digits = 2)),
+        tags$li("95% quantile: ", format(q95_value, digits = 2, nsmall = 1)),
         tags$li("Maximum: ", max_value)
       )
     ),
@@ -74,6 +86,7 @@ print_stats_all <- function(glucose_data) {
         tags$li("Minimum: ", min_value_day),
         tags$li("Mean: ", format(mean_value_day, digits = 2)),
         tags$li("Median: ", format(median_value_day, digits = 2)),
+        tags$li("95% quantile: ", format(q95_value_day, digits = 2, nsmall = 1)),
         tags$li("Maximum: ", max_value_day)
       )
     ),
@@ -83,6 +96,7 @@ print_stats_all <- function(glucose_data) {
         tags$li("Minimum: ", min_value_night),
         tags$li("Mean: ", format(mean_value_night, digits = 2)),
         tags$li("Median: ", format(median_value_night, digits = 2)),
+        tags$li("95% quantile: ", format(q95_value_night, digits = 2, nsmall = 1)),
         tags$li("Maximum: ", max_value_night)
       )
     )

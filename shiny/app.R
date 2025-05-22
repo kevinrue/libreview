@@ -16,8 +16,9 @@ ui <- page_navbar(
   ),
   nav_panel(
     title = "Full timeline",
-    p("TODO: restrict to last seven days."),
-    plotOutput("plot_time_all")
+    em("When life gives you data..."),
+    plotOutput("plot_time_all"),
+    p("TODO: restrict to last seven days.")
   ),
   nav_panel(
     title = "Overlay days",

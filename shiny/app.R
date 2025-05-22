@@ -1,11 +1,13 @@
 library(shiny)
 library(bslib)
 library(tidyverse)
+library(emoji)
 
 source("constants.R")
 source("plot_time_all.R")
 source("plot_time_overlaid.R")
 source("plot_histogram_all.R")
+source("print_stats_all.R")
 
 glucose_data <- read_csv("../data/glucose_data.csv", skip = 1, show_col_types = FALSE)
 date_annotations <- read_csv("../data/date_annotations.csv", col_names = c("date", "type"), show_col_types = FALSE)
@@ -23,6 +25,7 @@ ui <- page_navbar(
     em("When life gives you data... make a dashboard!"),
     plotOutput("plot_time_all", width = "100%", height = "400px"),
     plotOutput("plot_histogram_all", width = "100%", height = "400px"),
+    htmlOutput("print_stats_all"),
     p("TODO: restrict to last seven days.")
   ),
   nav_panel(
@@ -51,9 +54,14 @@ ui <- page_navbar(
 server <- function(input, output) {
   
   output$plot_time_all <- renderPlot({plot_time_all(glucose_data, config)})
-  output$plot_time_overlaid <- renderPlot({plot_time_overlaid(glucose_data, date_annotations, input$day_type, config)})
+  
+  output$plot_time_overlaid <- renderPlot({plot_time_overlaid(
+    glucose_data, date_annotations, input$day_type, config
+  )})
+  
   output$plot_histogram_all <- renderPlot({plot_histogram_all(glucose_data, config)})
   
+  output$print_stats_all <- renderPrint({print_stats_all(glucose_data)})
 }
 
 # Create Shiny app ----

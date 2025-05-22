@@ -1,4 +1,4 @@
-plot_time_overlaid <- function(glucose_data, date_annotations, day_type) {
+plot_time_overlaid <- function(glucose_data, date_annotations, day_type, config) {
   if (identical(day_type, .all_label)) {
     day_type <- sort(unique(date_annotations$type))
   }
@@ -28,7 +28,7 @@ plot_time_overlaid <- function(glucose_data, date_annotations, day_type) {
       geom = "rect",
       xmin = ymd_hm(paste(Sys.Date(), "00:00")),
       xmax = ymd_hm(paste(Sys.Date() + 1, "00:00")),
-      ymin = 3, ymax = 10,
+      ymin = config$target$min, ymax = config$target$max,
       fill = "palegreen", alpha = 0.5) +
     geom_line(aes(`Device Timestamp`, `Historic Glucose mmol/L`, group = Date)) +
     scale_x_datetime(

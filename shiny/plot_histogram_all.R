@@ -1,12 +1,12 @@
-plot_histogram_all <- function(glucose_data) {
+plot_histogram_all <- function(glucose_data, config) {
   plot_data <- glucose_data %>% 
     select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
     filter(!is.na(`Historic Glucose mmol/L`))
   ggplot(plot_data) +
     annotate(
       geom = "rect",
-      xmin = 3,
-      xmax = 10,
+      xmin = config$target$min,
+      xmax = config$target$max,
       ymin = -Inf, ymax = Inf,
       fill = "palegreen", alpha = 0.5) +
     geom_histogram(

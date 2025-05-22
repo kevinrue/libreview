@@ -1,4 +1,4 @@
-plot_time_all <- function(glucose_data) {
+plot_time_all <- function(glucose_data, config) {
   plot_data <- glucose_data %>% 
     select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
     mutate(
@@ -26,7 +26,7 @@ plot_time_all <- function(glucose_data) {
       geom = "rect",
       xmin = min(plot_data$`Device Timestamp`),
       xmax = max(plot_data$`Device Timestamp`),
-      ymin = 3, ymax = 10,
+      ymin = config$target$min, ymax = config$target$max,
       fill = "palegreen", alpha = 0.5) +
     geom_line(aes(`Device Timestamp`, `Historic Glucose mmol/L`)) +
     scale_x_datetime(

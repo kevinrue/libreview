@@ -25,7 +25,7 @@ ui <- page_navbar(
     em("When life gives you data... make a dashboard!"),
     plotOutput("plot_time_all", width = "100%", height = "400px"),
     plotOutput("plot_histogram_all", width = "100%", height = "400px"),
-    htmlOutput("print_stats_all"),
+    uiOutput("print_stats_all"),
     p("TODO: restrict to last seven days.")
   ),
   nav_panel(
@@ -61,7 +61,7 @@ server <- function(input, output) {
   
   output$plot_histogram_all <- renderPlot({plot_histogram_all(glucose_data, config)})
   
-  output$print_stats_all <- renderPrint({print_stats_all(glucose_data)})
+  output$print_stats_all <- renderUI({print_stats_all(glucose_data)})
 }
 
 # Create Shiny app ----

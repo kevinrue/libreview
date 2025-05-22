@@ -57,27 +57,34 @@ print_stats_all <- function(glucose_data) {
     pull(`Historic Glucose mmol/L`) %>% 
     max()
   
-  p(
-    h2("Overall"),
-    tags$ul(
-      tags$li("Minimum: ", min_value),
-      tags$li("Mean: ", format(mean_value, digits = 2)),
-      tags$li("Median: ", format(median_value, digits = 2)),
-      tags$li("Maximum: ", max_value)
+  layout_columns(
+    col_widths = rep(4L, 3L),
+    card(
+      h2("Overall"),
+      tags$ul(
+        tags$li("Minimum: ", min_value),
+        tags$li("Mean: ", format(mean_value, digits = 2)),
+        tags$li("Median: ", format(median_value, digits = 2)),
+        tags$li("Maximum: ", max_value)
+      )
     ),
-    h2(emoji_glue("Day :sun:")),
-    tags$ul(
-      tags$li("Minimum: ", min_value_day),
-      tags$li("Mean: ", format(mean_value_day, digits = 2)),
-      tags$li("Median: ", format(median_value_day, digits = 2)),
-      tags$li("Maximum: ", max_value_day)
+    card(
+      h2(emoji_glue("Day :sun:")),
+      tags$ul(
+        tags$li("Minimum: ", min_value_day),
+        tags$li("Mean: ", format(mean_value_day, digits = 2)),
+        tags$li("Median: ", format(median_value_day, digits = 2)),
+        tags$li("Maximum: ", max_value_day)
+      )
     ),
-    h2(emoji_glue("Night :crescent_moon:")),
-    tags$ul(
-      tags$li("Minimum: ", min_value_night),
-      tags$li("Mean: ", format(mean_value_night, digits = 2)),
-      tags$li("Median: ", format(median_value_night, digits = 2)),
-      tags$li("Maximum: ", max_value_night)
+    card(
+      h2(emoji_glue("Night :crescent_moon:")),
+      tags$ul(
+        tags$li("Minimum: ", min_value_night),
+        tags$li("Mean: ", format(mean_value_night, digits = 2)),
+        tags$li("Median: ", format(median_value_night, digits = 2)),
+        tags$li("Maximum: ", max_value_night)
+      )
     )
   )
 }

@@ -1,12 +1,13 @@
 library(shiny)
 library(bslib)
-library(ggplot2)
+library(tidyverse)
 
+source("constants.R")
 source("plot_time_all.R")
 source("plot_time_overlaid.R")
 source("plot_histogram_all.R")
 
-glucose_data <- read_csv("../data/KevinRue_glucose_21-5-2025.csv", skip = 1, show_col_types = FALSE)
+glucose_data <- read_csv("../data/KevinRue_glucose_22-5-2025.csv", skip = 1, show_col_types = FALSE)
 date_annotations <- read_csv("../data/date_annotations.csv", col_names = c("date", "type"), show_col_types = FALSE)
 
 ui <- page_navbar(
@@ -28,7 +29,7 @@ ui <- page_navbar(
     layout_columns(
       col_widths = c(3, 9),
       card(
-        selectInput("day_type", "Type", sort(unique(date_annotations$type)))
+        selectInput("day_type", "Type", c(.all_label, sort(unique(date_annotations$type))))
       ),
       card(
         plotOutput("plot_time_overlaid", width = "100%", height = "400px")

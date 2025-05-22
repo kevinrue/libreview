@@ -1,15 +1,17 @@
 plot_time_overlaid <- function(glucose_data, date_annotations, day_type) {
+  if (identical(day_type, .all_label)) {
+    day_type <- sort(unique(date_annotations$type))
+  }
   plot_data <- glucose_data %>% 
     select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
     separate(`Device Timestamp`, c("Date", "Time"), sep = " ") %>% 
     left_join(date_annotations, c("Date" = "date")) %>% 
-    filter(type == day_type) %>% 
+    filter(type %in% day_type) %>% 
     mutate(
       `Device Timestamp` = as_datetime(ymd_hm(paste(Sys.Date(), Time)))
     ) %>% 
     filter(!is.na(`Historic Glucose mmol/L`))
   ggplot(plot_data) +
-    facet_wrap(~type, ncol = 1) +
     annotate(
       geom = "rect",
       xmin = ymd_hm(paste(Sys.Date(), "00:00")),

@@ -15,7 +15,7 @@ library(lubridate)
 ## Import data
 
 ```{r}
-glucose_data <- read_csv("../data/KevinRue_glucose_21-5-2025.csv", skip = 1, show_col_types = FALSE)
+glucose_data <- read_csv("../data/KevinRue_glucose_22-5-2025.csv", skip = 1, show_col_types = FALSE)
 ```
 
 ## Time series
@@ -216,3 +216,25 @@ glucose_data %>%
   ) +
   theme(plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"))
 ```
+
+### Cluster days
+
+Challenge: every day the timestamps seem to shift by a minute, but not always at the same time within that day.
+How do we align measurements across days?
+Based on the first few days, it seems that measurements are recorded every 15 min.
+I would:
+
+- Break a standard day into 15 min chunks.
+- At every time point, take the measurement that is the closest in time for each day.
+- Use that "aligned" data to identify similar days
+
+```{r}
+glucose_data %>% 
+  select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
+  separate(`Device Timestamp`, c("Date", "Time"), sep = " ") %>% 
+  mutate(
+    `Device Timestamp` = as_datetime(ymd_hm(paste(Sys.Date(), Time)))
+  ) %>% 
+  filter(!is.na(`Historic Glucose mmol/L`)) 
+```
+

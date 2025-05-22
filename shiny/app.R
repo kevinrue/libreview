@@ -7,7 +7,7 @@ source("plot_time_all.R")
 source("plot_time_overlaid.R")
 source("plot_histogram_all.R")
 
-glucose_data <- read_csv("../data/KevinRue_glucose_22-5-2025.csv", skip = 1, show_col_types = FALSE)
+glucose_data <- read_csv("../data/glucose_data.csv", skip = 1, show_col_types = FALSE)
 date_annotations <- read_csv("../data/date_annotations.csv", col_names = c("date", "type"), show_col_types = FALSE)
 
 ui <- page_navbar(
@@ -19,7 +19,7 @@ ui <- page_navbar(
   fillable = FALSE,
   nav_panel(
     title = "Full timeline",
-    em("When life gives you data..."),
+    em("When life gives you data... make a dashboard!"),
     plotOutput("plot_time_all", width = "100%", height = "400px"),
     plotOutput("plot_histogram_all", width = "100%", height = "400px"),
     p("TODO: restrict to last seven days.")

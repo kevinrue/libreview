@@ -4,13 +4,17 @@ plot_time_overlaid <- function(glucose_data, date_annotations, day_type, config)
   }
   plot_data <- glucose_data %>% 
     select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
+    filter(!is.na(`Historic Glucose mmol/L`)) %>% 
     separate(`Device Timestamp`, c("Date", "Time"), sep = " ") %>% 
-    left_join(date_annotations, c("Date" = "date")) %>% 
-    filter(type %in% day_type) %>% 
     mutate(
       `Device Timestamp` = as_datetime(ymd_hm(paste(Sys.Date(), Time)))
-    ) %>% 
-    filter(!is.na(`Historic Glucose mmol/L`))
+    )
+  print(date_annotations)
+  if (!is.null(date_annotations)) {
+    plot_data <- plot_data %>% 
+      left_join(date_annotations, c("Date" = "date")) %>% 
+      filter(type %in% day_type)
+  }
   ggplot(plot_data) +
     annotate(
       geom = "rect",

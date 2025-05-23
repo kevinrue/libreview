@@ -10,7 +10,13 @@ source("plot_histogram_all.R")
 source("print_stats_all.R")
 
 glucose_data <- read_csv("../data/glucose_data.csv", skip = 1, show_col_types = FALSE)
-date_annotations <- read_csv("../data/date_annotations.csv", col_names = c("date", "type"), show_col_types = FALSE)
+
+date_annotations_file <- "../data/date_annotations.csv"
+if (file.exists(date_annotations_file)) {
+  date_annotations <- read_csv("../data/date_annotations.csv", col_names = c("date", "type"), show_col_types = FALSE)
+} else {
+  date_annotations <- NULL
+}
 config <- yaml::read_yaml("config.yaml")
 
 ui <- page_navbar(

@@ -9,7 +9,6 @@ plot_time_overlaid <- function(glucose_data, date_annotations, day_type, config)
     mutate(
       `Device Timestamp` = as_datetime(ymd_hm(paste(Sys.Date(), Time)))
     )
-  print(date_annotations)
   if (!is.null(date_annotations)) {
     plot_data <- plot_data %>% 
       left_join(date_annotations, c("Date" = "date")) %>% 

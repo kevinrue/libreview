@@ -64,9 +64,21 @@ heatmap_time_all <- function(glucose_data, date_annotations) {
     ) %>% 
     filter(date %in% keep_dates) %>% 
     column_to_rownames("date")
+  plot_column_group <- tibble(
+    time = sort(unique(colnames(plot_data))),
+    datetime = as_datetime(ymd_hms(paste(Sys.Date(), time))),
+    phase = factor(ifelse(
+      test = datetime > ymd_hm(paste(Sys.Date(), "06:00")) & datetime < ymd_hm(paste(Sys.Date(), "22:00")),
+      yes = "day",
+      no = "night"
+    ), levels = c("day", "night"))
+  ) %>% 
+    column_to_rownames("time") %>% 
+    select(phase)
   pheatmap(
     mat = plot_data,
     annotation_row = plot_row_group,
+    annotation_col = plot_column_group,
     cluster_cols = FALSE,
     main = "Clustered daily patterns")
 }

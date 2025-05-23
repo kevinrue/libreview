@@ -2,6 +2,7 @@ library(shiny)
 library(bslib)
 library(tidyverse)
 library(hms)
+library(pheatmap)
 library(emoji)
 
 source("constants.R")

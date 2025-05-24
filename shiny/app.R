@@ -15,7 +15,11 @@ glucose_data <- read_csv("../data/glucose_data.csv", skip = 1, show_col_types = 
 
 date_annotations_file <- "../data/date_annotations.csv"
 if (file.exists(date_annotations_file)) {
-  date_annotations <- read_csv("../data/date_annotations.csv", col_names = c("date", "type"), show_col_types = FALSE)
+  date_annotations <- read_csv(
+    file = date_annotations_file,
+    col_names = c("date", "type"),
+    show_col_types = FALSE
+  )
 } else {
   date_annotations <- NULL
 }

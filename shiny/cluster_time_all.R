@@ -30,7 +30,7 @@ cluster_time_all <- function(glucose_data) {
   plot(hclust_data)
 }
 
-heatmap_time_all <- function(glucose_data, date_annotations) {
+heatmap_time_all <- function(glucose_data, date_annotations, cluster_days = FALSE) {
   keep_dates <- glucose_data %>% 
     select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
     filter(!is.na(`Historic Glucose mmol/L`)) %>% 
@@ -71,14 +71,24 @@ heatmap_time_all <- function(glucose_data, date_annotations) {
       test = datetime > ymd_hm(paste(Sys.Date(), "06:00")) & datetime < ymd_hm(paste(Sys.Date(), "22:00")),
       yes = "day",
       no = "night"
-    ), levels = c("day", "night"))
+    ), levels = c("day", "night")),
+    tick = factor(ifelse(time %in% c("00:00:00", "06:00:00", "12:00:00", "18:00:00", "23:45:00"), yes = "6h", no = "other"))
   ) %>% 
     column_to_rownames("time") %>% 
-    select(phase)
+    select(phase, tick)
   pheatmap(
     mat = plot_data,
+    color = colorRampPalette(rev(brewer.pal(n = 11, name = "Spectral")))(100),
+    breaks = seq(3.9, 13.3, length.out = 100),
     annotation_row = plot_row_group,
     annotation_col = plot_column_group,
+    annotation_names_col = FALSE,
+    annotation_names_row = FALSE,
+    cluster_rows = cluster_days,
     cluster_cols = FALSE,
-    main = "Clustered daily patterns")
+    show_colnames = FALSE,
+    annotation_colors = list(
+      tick = c("6h" = "black", "other" = "white"),
+      phase = c("day" = "yellow", "night" = "darkblue")
+    ))
 }

@@ -4,6 +4,7 @@ library(tidyverse)
 library(hms)
 library(pheatmap)
 library(emoji)
+library(RColorBrewer)
 
 source("constants.R")
 source("plot_time_all.R")

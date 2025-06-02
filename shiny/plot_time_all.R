@@ -15,6 +15,18 @@ plot_time_all <- function(glucose_data, config) {
     nights_start <- nights_start[-length(nights_start)]
     nights_end <- nights_end[-length(nights_end)]
   }
+  weekends_start <- ymd_hm(paste(seq(as.Date(min(plot_data$`Device Timestamp`)), as.Date(max(plot_data$`Device Timestamp`)), 1), "06:00"))
+  weekends_end <- ymd_hm(paste(seq(as.Date(min(plot_data$`Device Timestamp`)), as.Date(max(plot_data$`Device Timestamp`)), 1), "22:00"))
+  weekends_start <- weekends_start[which(wday(weekends_start, label = TRUE) %in% c("Sat", "Sun"))]
+  weekends_end <- weekends_end[which(wday(weekends_end, label = TRUE) %in% c("Sat", "Sun"))]
+  if (min(plot_data$`Device Timestamp`) > weekends_end[1]) {
+    weekends_start <- weekends_start[-1]
+    weekends_end <- weekends_end[-1]
+  }
+  if (max(plot_data$`Device Timestamp`) < weekends_start[length(weekends_start)]) {
+    weekends_start <- weekends_start[-length(weekends_start)]
+    weekends_end <- weekends_end[-length(weekends_end)]
+  }
   ggplot(plot_data) +
     annotate(
       geom = "rect",
@@ -24,11 +36,20 @@ plot_time_all <- function(glucose_data, config) {
       fill = "lightgrey", alpha = 0.5) +
     annotate(
       geom = "rect",
+      xmin = weekends_start,
+      xmax = weekends_end,
+      ymin = -Inf, ymax = Inf,
+      fill = "orange", alpha = 0.5) +
+    annotate(
+      geom = "rect",
       xmin = min(plot_data$`Device Timestamp`),
       xmax = max(plot_data$`Device Timestamp`),
       ymin = config$target$min, ymax = config$target$max,
       fill = "palegreen", alpha = 0.5) +
-    geom_line(aes(`Device Timestamp`, `Historic Glucose mmol/L`)) +
+    geom_line(
+      mapping = aes(`Device Timestamp`, `Historic Glucose mmol/L`),
+      linewidth = 0.25
+    ) +
     scale_x_datetime(
       expand = c(0, 0, 0, 0),
       oob = scales::squish_infinite, date_breaks = "day", date_labels = "%d %b"

@@ -1,1 +1,1 @@
-.all_label <- "All"
+.all_label <- "__All__"

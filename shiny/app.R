@@ -47,7 +47,12 @@ ui <- page_navbar(
     layout_columns(
       col_widths = c(3, 9),
       card(
-        selectInput("day_type", "Type", c(.all_label, sort(unique(date_annotations$type))))
+        selectInput(
+          "day_type", "Type",
+          choices = c(.all_label, sort(unique(date_annotations$type))),
+          selected = .all_label,
+          multiple = TRUE
+        )
       ),
       card(
         plotOutput("plot_time_overlaid", width = "100%", height = "400px")

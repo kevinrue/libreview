@@ -1,5 +1,5 @@
 plot_time_overlaid <- function(glucose_data, date_annotations, day_type, config) {
-  if (identical(day_type, .all_label)) {
+  if (any(day_type == .all_label)) {
     day_type <- sort(unique(date_annotations$type))
   }
   plot_data <- glucose_data %>% 

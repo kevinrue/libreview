@@ -36,7 +36,6 @@ ui <- page_navbar(
   nav_panel(
     title = "Full timeline",
     em("When life gives you data... make a dashboard!"),
-    checkboxInput("highlight_weekends", label = "Highlight weekends", value = TRUE),
     plotOutput("plot_time_all", width = "100%", height = "400px"),
     plotOutput("plot_histogram_all", width = "100%", height = "400px"),
     uiOutput("print_stats_all"),
@@ -59,7 +58,10 @@ ui <- page_navbar(
       )
     )
   ),
-  nav_panel(title = "Three", p("Third page content.")),
+  nav_panel(
+    title = "Global settings",
+    checkboxInput("highlight_weekends", label = "Highlight weekends", value = TRUE)
+  ),
   nav_spacer(),
   nav_menu(
     title = "Links",

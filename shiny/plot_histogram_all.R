@@ -12,6 +12,7 @@ plot_histogram_all <- function(glucose_data, config) {
     geom_histogram(
       aes(`Historic Glucose mmol/L`),
       binwidth = 0.5,
+      boundary = 0,
       colour = "black", fill = "grey"
     ) +
     scale_x_continuous(limits = c(0, 21), breaks = seq(0, 21, 3)) +

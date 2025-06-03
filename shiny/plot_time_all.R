@@ -1,4 +1,4 @@
-plot_time_all <- function(glucose_data, config) {
+plot_time_all <- function(glucose_data, config, highlight_weekends) {
   plot_data <- glucose_data %>% 
     select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
     mutate(
@@ -27,19 +27,22 @@ plot_time_all <- function(glucose_data, config) {
     weekends_start <- weekends_start[-length(weekends_start)]
     weekends_end <- weekends_end[-length(weekends_end)]
   }
-  ggplot(plot_data) +
+  gg <- ggplot(plot_data) +
     annotate(
       geom = "rect",
       xmin = nights_start,
       xmax = nights_end,
       ymin = -Inf, ymax = Inf,
-      fill = "lightgrey", alpha = 0.5) +
-    annotate(
+      fill = "lightgrey", alpha = 0.5)
+  if (highlight_weekends) {
+    gg <- gg + annotate(
       geom = "rect",
       xmin = weekends_start,
       xmax = weekends_end,
       ymin = -Inf, ymax = Inf,
-      fill = "orange", alpha = 0.5) +
+      fill = "orange", alpha = 0.5)
+  }
+  gg <- gg +
     annotate(
       geom = "rect",
       xmin = min(plot_data$`Device Timestamp`),
@@ -64,4 +67,5 @@ plot_time_all <- function(glucose_data, config) {
       panel.grid.minor.x = element_blank(),
       panel.grid.minor.y = element_blank()
     )
+  gg
 }

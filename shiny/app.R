@@ -36,6 +36,7 @@ ui <- page_navbar(
   nav_panel(
     title = "Full timeline",
     em("When life gives you data... make a dashboard!"),
+    checkboxInput("highlight_weekends", label = "Highlight weekends", value = TRUE),
     plotOutput("plot_time_all", width = "100%", height = "400px"),
     plotOutput("plot_histogram_all", width = "100%", height = "400px"),
     uiOutput("print_stats_all"),
@@ -66,7 +67,9 @@ ui <- page_navbar(
 # Define server logic required to draw a histogram ----
 server <- function(input, output) {
   
-  output$plot_time_all <- renderPlot({plot_time_all(glucose_data, config)})
+  output$plot_time_all <- renderPlot({plot_time_all(
+    glucose_data, config, input[["highlight_weekends"]]
+  )})
   
   output$plot_time_overlaid <- renderPlot({plot_time_overlaid(
     glucose_data, date_annotations, input$day_type, config

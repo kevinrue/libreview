@@ -16,16 +16,8 @@ source("print_stats_all.R")
 
 glucose_data <- import_glucose_data()
 
-date_annotations_file <- "../data/date_annotations.csv"
-if (file.exists(date_annotations_file)) {
-  date_annotations <- read_csv(
-    file = date_annotations_file,
-    col_names = c("date", "type"),
-    show_col_types = FALSE
-  )
-} else {
-  date_annotations <- NULL
-}
+date_annotations <- import_date_annotations()
+
 config <- yaml::read_yaml("config.yaml")
 
 ui <- page_navbar(

@@ -37,3 +37,16 @@ import_glucose_data <- function() {
     )
   )
 }
+
+import_date_annotations <- function() {
+  date_annotations_file <- "../data/date_annotations.csv"
+  if (file.exists(date_annotations_file)) {
+    date_annotations <- read_csv(
+      file = date_annotations_file,
+      col_names = c("date", "type"),
+      show_col_types = FALSE
+    )
+  } else {
+    date_annotations <- NULL
+  }
+}

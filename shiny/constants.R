@@ -1,5 +1,3 @@
-.all_label <- "__All__"
-
 glucose_file_spec <- cols(
   Device = col_character(),
   `Serial Number` = col_character(),

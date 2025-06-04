@@ -1,4 +1,5 @@
 library(shiny)
+library(shinyWidgets)
 library(bslib)
 library(tidyverse)
 library(hms)
@@ -46,10 +47,14 @@ ui <- page_navbar(
     layout_columns(
       col_widths = c(3, 9),
       card(
-        selectInput(
+        shinyWidgets::pickerInput(
           "day_type", "Type",
-          choices = c(.all_label, sort(unique(date_annotations$type))),
-          selected = .all_label,
+          choices = c(sort(unique(date_annotations$type))),
+          selected = character(0),
+          options = pickerOptions(
+            actionsBox = TRUE,
+            selectedTextFormat = "count > 3"
+          ),
           multiple = TRUE
         )
       ),

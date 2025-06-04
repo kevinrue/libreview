@@ -8,40 +8,13 @@ library(emoji)
 library(RColorBrewer)
 
 source("constants.R")
+source("import.R")
 source("plot_time_all.R")
 source("plot_time_overlaid.R")
 source("plot_histogram_all.R")
 source("print_stats_all.R")
 
-glucose_data_all <- do.call(
-  "rbind",
-  lapply(
-    list.files("../data/glucose/", full.names = TRUE),
-    read_csv,
-    skip = 1,
-    col_types = glucose_file_spec
-  )
-) %>% 
-  distinct()
-
-glucose_data_historic <- glucose_data_all %>% 
-  filter(
-    `Record Type` %in% c(0)
-  ) %>% 
-  select(Device, `Serial Number`, `Device Timestamp`, `Historic Glucose mmol/L`)
-
-glucose_data_scan <- glucose_data_all %>% 
-  filter(
-    `Record Type` %in% c(1)
-  ) %>% 
-  select(Device, `Serial Number`, `Device Timestamp`, `Scan Glucose mmol/L`)
-
-glucose_data_notes <- glucose_data_all %>% 
-  filter(
-    `Record Type` %in% c(6),
-    !is.na(Notes)
-  ) %>% 
-  select(Device, `Serial Number`, `Device Timestamp`, `Notes`)
+glucose_data <- import_glucose_data()
 
 date_annotations_file <- "../data/date_annotations.csv"
 if (file.exists(date_annotations_file)) {
@@ -78,7 +51,7 @@ ui <- page_navbar(
         shinyWidgets::pickerInput(
           "day_type", "Type",
           choices = c(sort(unique(date_annotations$type))),
-          selected = character(0),
+          selected = c(sort(unique(date_annotations$type))),
           options = pickerOptions(
             actionsBox = TRUE,
             selectedTextFormat = "count > 3"
@@ -108,16 +81,16 @@ ui <- page_navbar(
 server <- function(input, output) {
   
   output$plot_time_all <- renderPlot({plot_time_all(
-    glucose_data_historic, config, input[["highlight_weekends"]]
+    glucose_data$historic, config, input[["highlight_weekends"]]
   )})
   
   output$plot_time_overlaid <- renderPlot({plot_time_overlaid(
-    glucose_data_historic, date_annotations, input$day_type, config
+    glucose_data$historic, date_annotations, input$day_type, config
   )})
   
-  output$plot_histogram_all <- renderPlot({plot_histogram_all(glucose_data_historic, config)})
+  output$plot_histogram_all <- renderPlot({plot_histogram_all(glucose_data$historic, config)})
   
-  output$print_stats_all <- renderUI({print_stats_all(glucose_data_historic)})
+  output$print_stats_all <- renderUI({print_stats_all(glucose_data$historic)})
 }
 
 # Create Shiny app ----

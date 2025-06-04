@@ -35,4 +35,4 @@ plot_histogram_all <- function(glucose_data, config) {
     theme(plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"))
 }
 
-plot_histogram_all(glucose_data_historic, config)
+# plot_histogram_all(glucose_data_historic, config)

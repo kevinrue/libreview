@@ -29,8 +29,19 @@ ui <- page_navbar(
   fillable = FALSE,
   nav_panel(
     title = "Full timeline",
-    em("When life gives you data... make a dashboard!"),
-    plotOutput("plot_time_all", width = "100%", height = "400px"),
+    card(
+      p(emoji("lemon"), em("When life gives you data... make a dashboard!"), emoji("milk_glass"), align="center")
+    ),
+    card(
+      card_header("Timeline"),
+      layout_sidebar(
+        sidebar = sidebar(
+          open = "closed",
+          checkboxInput("highlight_weekends", label = "Highlight weekends", value = TRUE)
+        ),
+        plotOutput("plot_time_all", width = "100%", height = "400px")
+      )
+    ),
     plotOutput("plot_histogram_all", width = "100%", height = "400px"),
     uiOutput("print_stats_all"),
     p("TODO: restrict to last seven days.")
@@ -57,8 +68,7 @@ ui <- page_navbar(
     )
   ),
   nav_panel(
-    title = "Global settings",
-    checkboxInput("highlight_weekends", label = "Highlight weekends", value = TRUE)
+    title = "Global settings"
   ),
   nav_spacer(),
   nav_menu(

@@ -45,8 +45,11 @@ import_date_annotations <- function() {
       file = date_annotations_file,
       col_names = c("date", "type"),
       show_col_types = FALSE
-    )
+    ) %>% 
+      mutate(
+        type = replace_na(type, "NA")
+      )
   } else {
-    date_annotations <- NULL
+    tibble(date = character(0), type = character(0))
   }
 }

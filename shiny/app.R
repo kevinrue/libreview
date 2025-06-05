@@ -9,6 +9,7 @@ library(RColorBrewer)
 
 source("constants.R")
 source("import.R")
+source("cleanup.R")
 source("plot_time_all.R")
 source("plot_time_overlaid.R")
 source("plot_histogram_all.R")
@@ -17,6 +18,10 @@ source("print_stats_all.R")
 glucose_data <- import_glucose_data()
 
 date_annotations <- import_date_annotations()
+date_annotations <- add_missing_date_annotations(glucose_data, date_annotations) %>% 
+  mutate(
+    type = refactor_na_last(type)
+  )
 
 config <- yaml::read_yaml("config.yaml")
 

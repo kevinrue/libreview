@@ -4,7 +4,7 @@ plot_histogram_all <- function(glucose_data, config) {
     filter(!is.na(`Historic Glucose mmol/L`)) %>% 
     mutate(
       weekend = factor(
-        wday(glucose_data_historic$`Device Timestamp`, label = TRUE) %in% c("Sat", "Sun"),
+        wday(glucose_data$`Device Timestamp`, label = TRUE) %in% c("Sat", "Sun"),
         c(FALSE, TRUE),
         c("Mon-Fri", "Sat-Sun")
       )

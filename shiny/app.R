@@ -65,7 +65,8 @@ ui <- page_navbar(
             selectedTextFormat = "count > 3"
           ),
           multiple = TRUE
-        )
+        ),
+        checkboxInput("plot_time_overlaid_color_logical", "Color by type", value = TRUE)
       ),
       card(
         plotOutput("plot_time_overlaid", width = "100%", height = "400px")
@@ -92,7 +93,9 @@ server <- function(input, output) {
   )})
   
   output$plot_time_overlaid <- renderPlot({plot_time_overlaid(
-    glucose_data$historic, date_annotations, input$day_type, config
+    glucose_data$historic, date_annotations, config,
+    input[["day_type"]],
+    input[["plot_time_overlaid_color_logical"]]
   )})
   
   output$plot_histogram_all <- renderPlot({plot_histogram_all(glucose_data$historic, config)})

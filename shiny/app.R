@@ -41,8 +41,9 @@ ui <- page_navbar(
       card_header("Timeline"),
       layout_sidebar(
         sidebar = sidebar(
-          open = "closed",
-          checkboxInput("highlight_weekends", label = "Highlight weekends", value = TRUE)
+          open = "open", # "closed"
+          numericInput("recent_days", "Recent Days", 14L, min = 1, max = 30),
+          checkboxInput("highlight_weekends", label = "Show weekends", value = TRUE)
         ),
         plotOutput("plot_time_all", width = "100%", height = "400px")
       )
@@ -88,7 +89,7 @@ ui <- page_navbar(
 server <- function(input, output) {
   
   output$plot_time_all <- renderPlot({plot_time_all(
-    glucose_data$historic, config, input[["highlight_weekends"]]
+    glucose_data$historic, config, input[["recent_days"]], input[["highlight_weekends"]]
   )})
   
   output$plot_time_overlaid <- renderPlot({plot_time_overlaid(

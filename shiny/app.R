@@ -49,8 +49,7 @@ ui <- page_navbar(
       )
     ),
     plotOutput("plot_histogram_all", width = "100%", height = "400px"),
-    uiOutput("print_stats_all"),
-    p("TODO: restrict to last seven days.")
+    uiOutput("print_stats_all")
   ),
   nav_panel(
     title = "Overlay days",

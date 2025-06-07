@@ -1,4 +1,7 @@
 cluster_time_all <- function(glucose_data) {
+  if (is.null(glucose_data)) {
+    return(NULL)
+  }
   keep_dates <- glucose_data %>% 
     select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
     filter(!is.na(`Historic Glucose mmol/L`)) %>% 
@@ -30,7 +33,10 @@ cluster_time_all <- function(glucose_data) {
   plot(hclust_data)
 }
 
-heatmap_time_all <- function(glucose_data, date_annotations, cluster_days = FALSE) {
+heatmap_time_all <- function(glucose_data, date_annotations, recent_days, cluster_days = FALSE) {
+  if (is.null(glucose_data)) {
+    return(NULL)
+  }
   keep_dates <- glucose_data %>% 
     select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
     filter(!is.na(`Historic Glucose mmol/L`)) %>% 
@@ -38,10 +44,15 @@ heatmap_time_all <- function(glucose_data, date_annotations, cluster_days = FALS
       `Device Timestamp` = as_datetime(dmy_hm(`Device Timestamp`))
     ) %>% 
     separate(`Device Timestamp`, c("Date", "Time"), sep = " ") %>% 
+    filter(
+      as_hms(Time) >= as_hms("06:00:00") & as_hms(Time) <= as_hms("22:00:00")
+    ) %>% 
     group_by(Date) %>% 
     summarise(n_obs = n()) %>% 
     filter(n_obs > 50) %>% 
     pull(Date)
+  min_date_keep <- as.Date(max(dmy_hm(glucose_data$`Device Timestamp`)) - recent_days * 60 * 60 * 24)
+  keep_dates <- keep_dates[as.Date(keep_dates) >= min_date_keep]
   plot_data <- glucose_data %>% 
     select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
     filter(!is.na(`Historic Glucose mmol/L`)) %>% 
@@ -58,12 +69,16 @@ heatmap_time_all <- function(glucose_data, date_annotations, cluster_days = FALS
     select(order(colnames(.))) %>% 
     column_to_rownames("Date") %>% 
     as.matrix()
-  plot_row_group <- date_annotations %>% 
-    mutate(
-      date = format_ISO8601(as.Date(as_date(dmy(date))))
-    ) %>% 
-    filter(date %in% keep_dates) %>% 
-    column_to_rownames("date")
+  plot_row_group <- if (all(date_annotations == "NA")) {
+    date_annotations %>% 
+      mutate(
+        date = format_ISO8601(as.Date(as_date(dmy(date))))
+      ) %>% 
+      filter(date %in% keep_dates) %>% 
+      column_to_rownames("date")
+  } else {
+    NA
+  }
   plot_column_group <- tibble(
     time = sort(unique(colnames(plot_data))),
     datetime = as_datetime(ymd_hms(paste(Sys.Date(), time))),

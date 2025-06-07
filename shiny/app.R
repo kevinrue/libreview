@@ -11,6 +11,7 @@ source("constants.R")
 source("import.R")
 source("cleanup.R")
 source("plot_time_all.R")
+source("cluster_time_all.R")
 source("plot_time_overlaid.R")
 source("plot_histogram_all.R")
 source("print_stats_all.R")
@@ -38,14 +39,15 @@ ui <- page_navbar(
       p(emoji("lemon"), em("When life gives you data... make a dashboard!"), emoji("milk_glass"), align="center")
     ),
     card(
-      card_header("Timeline"),
+      card_header("Recent days"),
       layout_sidebar(
         sidebar = sidebar(
           open = "open", # "closed"
-          numericInput("recent_days", "Recent Days", 14L, min = 1, max = 30),
+          numericInput("recent_days", "Number of days", 14L, min = 1, max = 30),
           checkboxInput("highlight_weekends", label = "Show weekends", value = TRUE)
         ),
-        plotOutput("plot_time_all", width = "100%", height = "400px")
+        plotOutput("plot_time_all", width = "100%", height = "400px"),
+        plotOutput("heatmap_time_all", width = "100%", height = "400px")
       )
     ),
     plotOutput("plot_histogram_all", width = "100%", height = "400px"),
@@ -153,18 +155,35 @@ server <- function(input, output, session) {
   })
   
   output$plot_time_all <- renderPlot({plot_time_all(
-    rv$glucose_data$historic, config, input[["recent_days"]], input[["highlight_weekends"]]
+    rv$glucose_data$historic,
+    config,
+    input[["recent_days"]],
+    input[["highlight_weekends"]]
   )})
   
   output$plot_time_overlaid <- renderPlot({plot_time_overlaid(
-    rv$glucose_data$historic, rv$date_annotations, config,
+    rv$glucose_data$historic,
+    rv$date_annotations,
+    config,
     input[["day_type"]],
     input[["plot_time_overlaid_color_logical"]]
   )})
   
-  output$plot_histogram_all <- renderPlot({plot_histogram_all(rv$glucose_data$historic, config)})
+  output$heatmap_time_all <- renderPlot({heatmap_time_all(
+    rv$glucose_data$historic,
+    rv$date_annotations,
+    input[["recent_days"]],
+    cluster_days = FALSE
+  )})
   
-  output$print_stats_all <- renderUI({print_stats_all(rv$glucose_data$historic)})
+  output$plot_histogram_all <- renderPlot({plot_histogram_all(
+    rv$glucose_data$historic,
+    config
+  )})
+  
+  output$print_stats_all <- renderUI({print_stats_all(
+    rv$glucose_data$historic
+  )})
 }
 
 # Create Shiny app ----

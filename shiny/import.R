@@ -1,8 +1,12 @@
 import_glucose_data <- function() {
+  glucose_files <- list.files("../data/glucose/", pattern = "*.csv$", full.names = TRUE)
+  if(length(glucose_files) < 1L) {
+    stop("No CSV file found under '../data/glucose/'")
+  }
   glucose_data_all <- do.call(
     "rbind",
     lapply(
-      list.files("../data/glucose/", full.names = TRUE),
+      glucose_files,
       read_csv,
       skip = 1,
       col_types = glucose_file_spec

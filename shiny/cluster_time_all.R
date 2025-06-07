@@ -69,16 +69,26 @@ heatmap_time_all <- function(glucose_data, date_annotations, recent_days, cluste
     select(order(colnames(.))) %>% 
     column_to_rownames("Date") %>% 
     as.matrix()
-  plot_row_group <- if (!all(date_annotations == "NA")) {
-    date_annotations %>% 
-      mutate(
-        date = format_ISO8601(as.Date(as_date(dmy(date))))
-      ) %>% 
-      filter(date %in% keep_dates) %>% 
-      column_to_rownames("date")
-  } else {
-    NA
+  plot_row_group <- tibble(
+    date = rownames(plot_data)
+  ) %>% 
+    mutate(
+      weekend = factor(
+        wday(date, label = TRUE) %in% c("Sat", "Sun"),
+        c(FALSE, TRUE),
+        c("Mon-Fri", "Sat-Sun")
+      )
+    )
+  if (!all(date_annotations$type == "NA")) {
+    plot_row_group <- plot_row_group %>% left_join(
+      date_annotations %>%
+        mutate(
+          date = format_ISO8601(as.Date(as_date(dmy(date))))
+          ),
+      by = "date")
   }
+  plot_row_group <- plot_row_group %>%
+    column_to_rownames("date")
   plot_column_group <- tibble(
     time = sort(unique(colnames(plot_data))),
     datetime = as_datetime(ymd_hms(paste(Sys.Date(), time))),
@@ -104,6 +114,7 @@ heatmap_time_all <- function(glucose_data, date_annotations, recent_days, cluste
     show_colnames = FALSE,
     annotation_colors = list(
       tick = c("6h" = "black", "other" = "white"),
-      phase = c("day" = "yellow", "night" = "darkblue")
+      phase = c("day" = "yellow", "night" = "darkblue"),
+      weekend = c("Mon-Fri" = "white", "Sat-Sun" = "orange")
     ))
 }

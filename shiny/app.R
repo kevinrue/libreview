@@ -17,7 +17,7 @@ source("print_stats_all.R")
 
 glucose_data <- import_glucose_data(default_glucose_files)
 
-date_annotations <- import_date_annotations()
+date_annotations <- import_date_annotations(default_date_annotations_file)
 date_annotations <- add_missing_date_annotations(glucose_data, date_annotations) %>% 
   mutate(
     type = refactor_na_last(type)
@@ -56,17 +56,7 @@ ui <- page_navbar(
     layout_columns(
       col_widths = c(3, 9),
       card(
-        shinyWidgets::pickerInput(
-          "day_type", "Type",
-          choices = levels(date_annotations$type),
-          selected = levels(date_annotations$type),
-          options = pickerOptions(
-            actionsBox = TRUE,
-            selectedTextFormat = "count > 3"
-          ),
-          multiple = TRUE
-        ),
-        checkboxInput("plot_time_overlaid_color_logical", "Color by type", value = TRUE)
+        uiOutput("date_annotation_file_ui")
       ),
       card(
         plotOutput("plot_time_overlaid", width = "100%", height = "400px")
@@ -97,8 +87,8 @@ server <- function(input, output, session) {
     if (is.null(rv$glucose_data)) {
       showModal(
         modalDialog(
-          p("No CSV file found under '../data/glucose/'. Please select glucose files below."),
-          shiny::fileInput(inputId = "glucose_files", label = "Glucose CSV files", multiple = TRUE, accept = ".csv"),
+          p("No CSV file found under", tags$code("../data/glucose/"), ". Please select glucose files below."),
+          shiny::fileInput(inputId = "glucose_files", label = "Glucose files", multiple = TRUE, accept = ".csv"),
           footer = NULL
         )
       )
@@ -111,6 +101,44 @@ server <- function(input, output, session) {
       if (!is.null(glucose_data)) {
         rv$glucose_data <- glucose_data
         rv$date_annotations <- add_missing_date_annotations(glucose_data, date_annotations) %>% 
+          mutate(
+            type = refactor_na_last(type)
+          )
+        updatePickerInput(
+          session = session, inputId = "day_type",
+          choices = levels(rv$date_annotations$type),
+          selected = levels(rv$date_annotations$type),
+        )
+        removeModal()
+      }
+    }
+  })
+  
+  output$date_annotation_file_ui <- renderUI({
+    if (all(rv$date_annotations$type == "NA")) {
+      fileInput("date_annotation_file", label = "Date annotations", multiple = FALSE, accept = ".csv")
+    } else {
+      tagList(
+        shinyWidgets::pickerInput(
+          "day_type", "Type",
+          choices = levels(rv$date_annotations$type),
+          selected = levels(rv$date_annotations$type),
+          options = pickerOptions(
+            actionsBox = TRUE,
+            selectedTextFormat = "count > 3"
+          ),
+          multiple = TRUE
+        ),
+        checkboxInput("plot_time_overlaid_color_logical", "Color by type", value = TRUE)
+      )
+    }
+  })
+  
+  observeEvent(input[["date_annotation_file"]], {
+    if (!is.null(input[["date_annotation_file"]])) {
+      date_annotations <- import_date_annotations(input[["date_annotation_file"]][["datapath"]])
+      if (!is.null(date_annotations)) {
+        rv$date_annotations <- add_missing_date_annotations(rv$glucose_data, date_annotations) %>% 
           mutate(
             type = refactor_na_last(type)
           )

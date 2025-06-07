@@ -1,4 +1,5 @@
 default_glucose_files <- list.files("../data/glucose/", pattern = "*.csv$", full.names = TRUE)
+default_date_annotations_file <- "../data/date_annotations.csv"
 
 import_glucose_data <- function(glucose_files) {
   if(length(glucose_files) < 1L) {
@@ -43,8 +44,7 @@ import_glucose_data <- function(glucose_files) {
   )
 }
 
-import_date_annotations <- function() {
-  date_annotations_file <- "../data/date_annotations.csv"
+import_date_annotations <- function(date_annotations_file) {
   if (file.exists(date_annotations_file)) {
     date_annotations <- read_csv(
       file = date_annotations_file,

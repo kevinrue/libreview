@@ -69,7 +69,7 @@ heatmap_time_all <- function(glucose_data, date_annotations, recent_days, cluste
     select(order(colnames(.))) %>% 
     column_to_rownames("Date") %>% 
     as.matrix()
-  plot_row_group <- if (all(date_annotations == "NA")) {
+  plot_row_group <- if (!all(date_annotations == "NA")) {
     date_annotations %>% 
       mutate(
         date = format_ISO8601(as.Date(as_date(dmy(date))))

@@ -19,7 +19,7 @@ source("print_stats_all.R")
 glucose_data <- import_glucose_data(default_glucose_files)
 
 date_annotations <- import_date_annotations(default_date_annotations_file)
-date_annotations <- add_missing_date_annotations(glucose_data, date_annotations) %>% 
+date_annotations <- add_missing_date_annotations(glucose_data$historic, date_annotations) %>% 
   mutate(
     type = refactor_na_last(type)
   )

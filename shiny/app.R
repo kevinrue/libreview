@@ -173,6 +173,7 @@ server <- function(input, output, session) {
     rv$glucose_data$historic,
     rv$date_annotations,
     input[["recent_days"]],
+    input[["highlight_weekends"]],
     cluster_days = FALSE
   )})
   

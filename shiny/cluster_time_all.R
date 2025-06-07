@@ -1,39 +1,4 @@
-cluster_time_all <- function(glucose_data) {
-  if (is.null(glucose_data)) {
-    return(NULL)
-  }
-  keep_dates <- glucose_data %>% 
-    select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
-    filter(!is.na(`Historic Glucose mmol/L`)) %>% 
-    mutate(
-      `Device Timestamp` = as_datetime(dmy_hm(`Device Timestamp`))
-    ) %>% 
-    separate(`Device Timestamp`, c("Date", "Time"), sep = " ") %>% 
-    group_by(Date) %>% 
-    summarise(n_obs = n()) %>% 
-    filter(n_obs > 50) %>% 
-    pull(Date)
-  plot_data <- glucose_data %>% 
-    select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
-    filter(!is.na(`Historic Glucose mmol/L`)) %>% 
-    mutate(
-      `Device Timestamp` = round_hms(as_datetime(dmy_hm(`Device Timestamp`)), 15*60)
-    ) %>% 
-    mutate(
-      `Device Timestamp` = format_ISO8601(`Device Timestamp`)
-    ) %>% 
-    separate(`Device Timestamp`, c("Date", "Time"), sep = "T") %>% 
-    filter(Date %in% keep_dates) %>% 
-    pivot_wider(names_from = `Time`, values_from = `Historic Glucose mmol/L`, values_fn = mean) %>% 
-    arrange(`Date`) %>% 
-    select(order(colnames(.))) %>% 
-    select(c(Date, contains(":")))
-  dist_data <- dist(plot_data %>% column_to_rownames("Date"))
-  hclust_data <- hclust(dist_data)
-  plot(hclust_data)
-}
-
-heatmap_time_all <- function(glucose_data, date_annotations, recent_days, cluster_days = FALSE) {
+heatmap_time_all <- function(glucose_data, date_annotations, recent_days, highlight_weekends, cluster_days) {
   if (is.null(glucose_data)) {
     return(NULL)
   }
@@ -71,21 +36,24 @@ heatmap_time_all <- function(glucose_data, date_annotations, recent_days, cluste
     as.matrix()
   plot_row_group <- tibble(
     date = rownames(plot_data)
-  ) %>% 
-    mutate(
-      weekend = factor(
-        wday(date, label = TRUE) %in% c("Sat", "Sun"),
-        c(FALSE, TRUE),
-        c("Mon-Fri", "Sat-Sun")
-      )
-    )
+  )
   if (!all(date_annotations$type == "NA")) {
     plot_row_group <- plot_row_group %>% left_join(
       date_annotations %>%
         mutate(
           date = format_ISO8601(as.Date(as_date(dmy(date))))
-          ),
+        ),
       by = "date")
+  }
+  if (highlight_weekends) {
+    plot_row_group <- plot_row_group %>% 
+      mutate(
+        weekend = factor(
+          wday(date, label = TRUE) %in% c("Sat", "Sun"),
+          c(FALSE, TRUE),
+          c("Mon-Fri", "Sat-Sun")
+        )
+      )
   }
   plot_row_group <- plot_row_group %>%
     column_to_rownames("date")
@@ -117,4 +85,39 @@ heatmap_time_all <- function(glucose_data, date_annotations, recent_days, cluste
       phase = c("day" = "yellow", "night" = "darkblue"),
       weekend = c("Mon-Fri" = "white", "Sat-Sun" = "orange")
     ))
+}
+
+cluster_time_all <- function(glucose_data) {
+  if (is.null(glucose_data)) {
+    return(NULL)
+  }
+  keep_dates <- glucose_data %>% 
+    select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
+    filter(!is.na(`Historic Glucose mmol/L`)) %>% 
+    mutate(
+      `Device Timestamp` = as_datetime(dmy_hm(`Device Timestamp`))
+    ) %>% 
+    separate(`Device Timestamp`, c("Date", "Time"), sep = " ") %>% 
+    group_by(Date) %>% 
+    summarise(n_obs = n()) %>% 
+    filter(n_obs > 50) %>% 
+    pull(Date)
+  plot_data <- glucose_data %>% 
+    select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
+    filter(!is.na(`Historic Glucose mmol/L`)) %>% 
+    mutate(
+      `Device Timestamp` = round_hms(as_datetime(dmy_hm(`Device Timestamp`)), 15*60)
+    ) %>% 
+    mutate(
+      `Device Timestamp` = format_ISO8601(`Device Timestamp`)
+    ) %>% 
+    separate(`Device Timestamp`, c("Date", "Time"), sep = "T") %>% 
+    filter(Date %in% keep_dates) %>% 
+    pivot_wider(names_from = `Time`, values_from = `Historic Glucose mmol/L`, values_fn = mean) %>% 
+    arrange(`Date`) %>% 
+    select(order(colnames(.))) %>% 
+    select(c(Date, contains(":")))
+  dist_data <- dist(plot_data %>% column_to_rownames("Date"))
+  hclust_data <- hclust(dist_data)
+  plot(hclust_data)
 }

@@ -1,4 +1,7 @@
 plot_time_all <- function(glucose_data, config, recent_days, highlight_weekends) {
+  if (is.null(glucose_data)) {
+    return(NULL)
+  }
   plot_data <- glucose_data %>% 
     select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
     mutate(

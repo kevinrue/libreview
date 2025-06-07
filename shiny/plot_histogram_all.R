@@ -1,4 +1,7 @@
 plot_histogram_all <- function(glucose_data, config) {
+  if (is.null(glucose_data)) {
+    return(NULL)
+  }
   plot_data <- glucose_data %>% 
     select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
     filter(!is.na(`Historic Glucose mmol/L`)) %>% 

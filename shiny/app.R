@@ -15,7 +15,7 @@ source("plot_time_overlaid.R")
 source("plot_histogram_all.R")
 source("print_stats_all.R")
 
-glucose_data <- import_glucose_data()
+glucose_data <- import_glucose_data(default_glucose_files)
 
 date_annotations <- import_date_annotations()
 date_annotations <- add_missing_date_annotations(glucose_data, date_annotations) %>% 
@@ -58,8 +58,8 @@ ui <- page_navbar(
       card(
         shinyWidgets::pickerInput(
           "day_type", "Type",
-          choices = c(sort(unique(date_annotations$type))),
-          selected = c(sort(unique(date_annotations$type))),
+          choices = levels(date_annotations$type),
+          selected = levels(date_annotations$type),
           options = pickerOptions(
             actionsBox = TRUE,
             selectedTextFormat = "count > 3"
@@ -86,21 +86,57 @@ ui <- page_navbar(
 )
 
 # Define server logic required to draw a histogram ----
-server <- function(input, output) {
+server <- function(input, output, session) {
+  
+  rv <- reactiveValues(
+    glucose_data = glucose_data,
+    date_annotations = date_annotations
+  )
+  
+  observeEvent(rv$glucose_data, {
+    if (is.null(rv$glucose_data)) {
+      showModal(
+        modalDialog(
+          p("No CSV file found under '../data/glucose/'. Please select glucose files below."),
+          shiny::fileInput(inputId = "glucose_files", label = "Glucose CSV files", multiple = TRUE, accept = ".csv"),
+          footer = NULL
+        )
+      )
+    }
+  }, ignoreNULL = FALSE)
+  
+  observeEvent(input[["glucose_files"]], {
+    if (!is.null(input[["glucose_files"]])) {
+      glucose_data <- import_glucose_data(input[["glucose_files"]][["datapath"]])
+      if (!is.null(glucose_data)) {
+        rv$glucose_data <- glucose_data
+        rv$date_annotations <- add_missing_date_annotations(glucose_data, date_annotations) %>% 
+          mutate(
+            type = refactor_na_last(type)
+          )
+        updatePickerInput(
+          session = session, inputId = "day_type",
+          choices = levels(rv$date_annotations$type),
+          selected = levels(rv$date_annotations$type),
+        )
+        removeModal()
+      }
+    }
+  })
   
   output$plot_time_all <- renderPlot({plot_time_all(
-    glucose_data$historic, config, input[["recent_days"]], input[["highlight_weekends"]]
+    rv$glucose_data$historic, config, input[["recent_days"]], input[["highlight_weekends"]]
   )})
   
   output$plot_time_overlaid <- renderPlot({plot_time_overlaid(
-    glucose_data$historic, date_annotations, config,
+    rv$glucose_data$historic, rv$date_annotations, config,
     input[["day_type"]],
     input[["plot_time_overlaid_color_logical"]]
   )})
   
-  output$plot_histogram_all <- renderPlot({plot_histogram_all(glucose_data$historic, config)})
+  output$plot_histogram_all <- renderPlot({plot_histogram_all(rv$glucose_data$historic, config)})
   
-  output$print_stats_all <- renderUI({print_stats_all(glucose_data$historic)})
+  output$print_stats_all <- renderUI({print_stats_all(rv$glucose_data$historic)})
 }
 
 # Create Shiny app ----

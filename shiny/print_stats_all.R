@@ -1,4 +1,7 @@
 print_stats_all <- function(glucose_data) {
+  if (is.null(glucose_data)) {
+    return(NULL)
+  }
   plot_data <- glucose_data %>% 
     select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
     separate(`Device Timestamp`, c("Date", "Time"), sep = " ") %>% 

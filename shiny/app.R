@@ -46,7 +46,7 @@ ui <- page_navbar(
           numericInput("recent_days", "Number of days", 14L, min = 1, max = 30),
           checkboxInput("highlight_weekends", label = "Show weekends", value = TRUE)
         ),
-        plotOutput("plot_time_all", width = "100%", height = "400px"),
+        plotOutput("plot_time_all", width = "100%", height = "400px", hover = hoverOpts(id ="plot_time_all_hover", delay = 1000)),
         plotOutput("heatmap_time_all", width = "100%", height = "400px")
       )
     ),
@@ -158,8 +158,14 @@ server <- function(input, output, session) {
     rv$glucose_data,
     config,
     input[["recent_days"]],
-    input[["highlight_weekends"]]
+    input[["highlight_weekends"]],
+    rv[["hover_datetime"]]
   )})
+  
+  observeEvent(input$plot_time_all_hover, {
+    hover_datetime <- input$plot_time_all_hover$x
+    rv[["hover_datetime"]] <- hover_datetime
+  })
   
   output$plot_time_overlaid <- renderPlot({plot_time_overlaid(
     rv$glucose_data$historic,

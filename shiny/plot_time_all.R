@@ -1,4 +1,4 @@
-plot_time_all <- function(glucose_data, config, recent_days, highlight_weekends) {
+plot_time_all <- function(glucose_data, config, recent_days, highlight_weekends, hover_datetime) {
   if (is.null(glucose_data)) {
     return(NULL)
   }
@@ -86,21 +86,36 @@ plot_time_all <- function(glucose_data, config, recent_days, highlight_weekends)
       data = plot_data,
       linewidth = 0.25
     )
-    if (TRUE) {
-      gg <- gg +
-        geom_dotplot(
-          mapping = aes(x = `Device Timestamp`),
-          y = 0,
-          data = glucose_data$notes %>% mutate(
-            `Device Timestamp` = as_datetime(dmy_hm(`Device Timestamp`))
-          ),
-          binwidth = 60 * 60
+  if (TRUE) {
+    gg <- gg +
+      geom_dotplot(
+        mapping = aes(x = `Device Timestamp`),
+        y = 0,
+        data = glucose_data$notes %>% mutate(
+          `Device Timestamp` = as_datetime(dmy_hm(`Device Timestamp`))
+        ),
+        binwidth = 60 * 60
+      )
+  }
+  if (!is.null(hover_datetime)) {
+    nearest_note <- glucose_data$notes %>%
+      mutate(
+        `Device Timestamp` = as_datetime(dmy_hm(`Device Timestamp`))
+      ) %>%
+      mutate(
+        abs_diff = abs(as.numeric(`Device Timestamp` - hover_datetime))
+      ) %>%
+      slice_min(abs_diff)
+    gg <- gg +
+      geom_label(
+        mapping = aes(x, y, label = label),
+        data = tibble(x = as_datetime(hover_datetime), y = 20, label = nearest_note$Notes)
         )
-    }
-    gg <- gg + scale_x_datetime(
-      expand = c(0, 0, 0, 0),
-      oob = scales::squish_infinite, date_breaks = "day", date_labels = "%d %b"
-    ) +
+  }
+  gg <- gg + scale_x_datetime(
+    expand = c(0, 0, 0, 0),
+    oob = scales::squish_infinite, date_breaks = "day", date_labels = "%d %b"
+  ) +
     scale_y_continuous(breaks = seq(0, 21, 3)) +
     coord_cartesian(
       xlim = range(plot_data$`Device Timestamp`),

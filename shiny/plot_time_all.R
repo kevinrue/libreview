@@ -88,12 +88,13 @@ plot_time_all <- function(glucose_data, config, recent_days, highlight_weekends)
     )
     if (TRUE) {
       gg <- gg +
-        geom_point(
+        geom_dotplot(
           mapping = aes(x = `Device Timestamp`),
           y = 0,
           data = glucose_data$notes %>% mutate(
             `Device Timestamp` = as_datetime(dmy_hm(`Device Timestamp`))
-          )
+          ),
+          binwidth = 60 * 60
         )
     }
     gg <- gg + scale_x_datetime(

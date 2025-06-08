@@ -1,4 +1,4 @@
-plot_time_all <- function(glucose_data, config, recent_days, highlight_weekends, hover_datetime) {
+plot_time_all <- function(glucose_data, config, recent_days, highlight_weekends, click_datetime) {
   if (is.null(glucose_data)) {
     return(NULL)
   }
@@ -97,19 +97,25 @@ plot_time_all <- function(glucose_data, config, recent_days, highlight_weekends,
         binwidth = 60 * 60
       )
   }
-  if (!is.null(hover_datetime)) {
+  if (!is.null(click_datetime)) {
     nearest_note <- glucose_data$notes %>%
       mutate(
         `Device Timestamp` = as_datetime(dmy_hm(`Device Timestamp`))
       ) %>%
       mutate(
-        abs_diff = abs(as.numeric(`Device Timestamp` - hover_datetime))
+        abs_diff = abs(as.numeric(`Device Timestamp` - click_datetime))
       ) %>%
       slice_min(abs_diff)
     gg <- gg +
       geom_label(
         mapping = aes(x, y, label = label),
-        data = tibble(x = as_datetime(hover_datetime), y = 20, label = nearest_note$Notes)
+        data = tibble(
+          x = as_datetime(click_datetime),
+          y = 20,
+          label = paste0(
+            str_sub(as.character(nearest_note$`Device Timestamp`), 12L, 16L), "\n",
+            nearest_note$Notes
+          ))
         )
   }
   gg <- gg + scale_x_datetime(

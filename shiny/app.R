@@ -46,7 +46,7 @@ ui <- page_navbar(
           numericInput("recent_days", "Number of days", 14L, min = 1, max = 30),
           checkboxInput("highlight_weekends", label = "Show weekends", value = TRUE)
         ),
-        plotOutput("plot_time_all", width = "100%", height = "400px", hover = hoverOpts(id ="plot_time_all_hover", delay = 1000)),
+        plotOutput("plot_time_all", width = "100%", height = "400px", click = clickOpts(id ="plot_time_all_click")),
         plotOutput("heatmap_time_all", width = "100%", height = "400px")
       )
     ),
@@ -159,12 +159,12 @@ server <- function(input, output, session) {
     config,
     input[["recent_days"]],
     input[["highlight_weekends"]],
-    rv[["hover_datetime"]]
+    rv[["click_datetime"]]
   )})
   
-  observeEvent(input$plot_time_all_hover, {
-    hover_datetime <- input$plot_time_all_hover$x
-    rv[["hover_datetime"]] <- hover_datetime
+  observeEvent(input[["plot_time_all_click"]], {
+    click_datetime <- input[["plot_time_all_click"]][["x"]]
+    rv[["click_datetime"]] <- click_datetime
   })
   
   output$plot_time_overlaid <- renderPlot({plot_time_overlaid(

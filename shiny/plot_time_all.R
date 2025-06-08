@@ -2,7 +2,7 @@ plot_time_all <- function(glucose_data, config, recent_days, highlight_weekends)
   if (is.null(glucose_data)) {
     return(NULL)
   }
-  plot_data <- glucose_data %>% 
+  plot_data <- glucose_data$historic %>% 
     select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
     mutate(
       `Device Timestamp` = as_datetime(dmy_hm(`Device Timestamp`))
@@ -59,7 +59,7 @@ plot_time_all <- function(glucose_data, config, recent_days, highlight_weekends)
     weekends_start <- weekends_start[-length(weekends_start)]
     weekends_end <- weekends_end[-length(weekends_end)]
   }
-  gg <- ggplot(plot_data) +
+  gg <- ggplot() +
     annotate(
       geom = "rect",
       xmin = nights_start,
@@ -83,9 +83,20 @@ plot_time_all <- function(glucose_data, config, recent_days, highlight_weekends)
       fill = "palegreen", alpha = 0.5) +
     geom_line(
       mapping = aes(`Device Timestamp`, `Historic Glucose mmol/L`),
+      data = plot_data,
       linewidth = 0.25
-    ) +
-    scale_x_datetime(
+    )
+    if (TRUE) {
+      gg <- gg +
+        geom_point(
+          mapping = aes(x = `Device Timestamp`),
+          y = 0,
+          data = glucose_data$notes %>% mutate(
+            `Device Timestamp` = as_datetime(dmy_hm(`Device Timestamp`))
+          )
+        )
+    }
+    gg <- gg + scale_x_datetime(
       expand = c(0, 0, 0, 0),
       oob = scales::squish_infinite, date_breaks = "day", date_labels = "%d %b"
     ) +

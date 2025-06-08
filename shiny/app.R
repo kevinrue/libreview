@@ -19,7 +19,7 @@ source("print_stats_all.R")
 glucose_data <- import_glucose_data(default_glucose_files)
 
 date_annotations <- import_date_annotations(default_date_annotations_file)
-date_annotations <- add_missing_date_annotations(glucose_data$historic, date_annotations) %>% 
+date_annotations <- add_missing_date_annotations(glucose_data, date_annotations) %>% 
   mutate(
     type = refactor_na_last(type)
   )
@@ -155,7 +155,7 @@ server <- function(input, output, session) {
   })
   
   output$plot_time_all <- renderPlot({plot_time_all(
-    rv$glucose_data$historic,
+    rv$glucose_data,
     config,
     input[["recent_days"]],
     input[["highlight_weekends"]]

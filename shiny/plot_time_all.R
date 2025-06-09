@@ -120,7 +120,7 @@ plot_time_all <- function(glucose_data, config, recent_days, highlight_weekends,
   }
   gg <- gg + scale_x_datetime(
     expand = c(0, 0, 0, 0),
-    oob = scales::squish_infinite, date_breaks = "day", date_labels = "%d %b"
+    oob = scales::squish_infinite, date_breaks = "day", date_labels = "%a\n%d %b"
   ) +
     scale_y_continuous(breaks = seq(0, 21, 3)) +
     coord_cartesian(

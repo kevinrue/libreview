@@ -74,6 +74,7 @@ heatmap_time_all <- function(glucose_data, date_annotations, recent_days, highli
   pheatmap(
     mat = plot_data,
     color = colorRampPalette(rev(brewer.pal(n = 11, name = "Spectral")))(100),
+    border_color = NA,
     breaks = seq(3.9, 13.3, length.out = 100),
     annotation_row = plot_row_group,
     annotation_col = plot_column_group,
@@ -86,7 +87,8 @@ heatmap_time_all <- function(glucose_data, date_annotations, recent_days, highli
       tick = c("6h" = "black", "other" = "white"),
       phase = c("day" = "yellow", "night" = "darkblue"),
       weekend = c("Mon-Fri" = "white", "Sat-Sun" = "orange")
-    ))
+    )
+  )
 }
 
 ## test ----

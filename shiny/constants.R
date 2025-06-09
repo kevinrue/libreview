@@ -19,3 +19,7 @@ glucose_file_spec <- cols(
   `Correction Insulin (units)` = col_double(),
   `User Change Insulin (units)` = col_double()
 )
+
+page_navbar_id <- "page_navbar"
+recent_data_id <- "Recent data"
+overlay_days_id <- "Overlay days"

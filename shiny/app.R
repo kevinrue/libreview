@@ -16,6 +16,7 @@ source("cluster_time_all.R")
 source("plot_time_overlaid.R")
 source("plot_histogram_recent.R")
 source("print_stats_all.R")
+source("help.R")
 
 glucose_data <- import_glucose_data(default_glucose_files)
 
@@ -30,6 +31,7 @@ date_type_colors <- import_date_type_colors(default_day_type_file)
 config <- yaml::read_yaml("config.yaml")
 
 ui <- page_navbar(
+  id = page_navbar_id,
   title = "LibreView",
   navbar_options = navbar_options(
     bg = "#2D89C8",
@@ -37,7 +39,7 @@ ui <- page_navbar(
   ),
   fillable = FALSE,
   nav_panel(
-    title = "Recent data",
+    title = recent_data_id,
     card(
       p(emoji("lemon"), em("When life gives you data... make a dashboard!"), emoji("milk_glass"), align="center")
     ),
@@ -66,7 +68,7 @@ ui <- page_navbar(
     uiOutput("print_stats_all")
   ),
   nav_panel(
-    title = "Overlay days",
+    title = overlay_days_id,
     layout_columns(
       col_widths = c(3, 9),
       card(
@@ -78,12 +80,13 @@ ui <- page_navbar(
     )
   ),
   nav_spacer(),
-  nav_menu(
-    title = "Links",
-    align = "right",
-    nav_item(tags$a("Posit", href = "https://posit.co")),
-    nav_item(tags$a("Shiny", href = "https://shiny.posit.co"))
-  )
+  # nav_menu(
+  #   title = "Links",
+  #   align = "right",
+  #   nav_item(tags$a("Posit", href = "https://posit.co")),
+  #   nav_item(tags$a("Shiny", href = "https://shiny.posit.co"))
+  # ),
+  nav_item(shiny::actionLink("help_main",label = "", icon = icon("question-circle")))
 )
 
 # Define server logic required to draw a histogram ----
@@ -105,6 +108,17 @@ server <- function(input, output, session) {
       )
     }
   }, ignoreNULL = FALSE)
+  
+  observeEvent(input[["help_main"]], {
+    print(ls(input))
+    showModal(
+      modalDialog(
+        size = "xl",
+        easyClose = TRUE,
+        get_help_modal_ui(input[[page_navbar_id]])
+      )
+    )
+  })
   
   observeEvent(input[["glucose_files"]], {
     if (!is.null(input[["glucose_files"]])) {

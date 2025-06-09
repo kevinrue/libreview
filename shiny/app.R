@@ -68,9 +68,6 @@ ui <- page_navbar(
       )
     )
   ),
-  nav_panel(
-    title = "Global settings"
-  ),
   nav_spacer(),
   nav_menu(
     title = "Links",

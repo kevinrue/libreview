@@ -1,4 +1,4 @@
-plot_histogram_all <- function(glucose_data, config) {
+plot_histogram_recent <- function(glucose_data, config, recent_days) {
   if (is.null(glucose_data)) {
     return(NULL)
   }
@@ -6,8 +6,12 @@ plot_histogram_all <- function(glucose_data, config) {
     select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
     filter(!is.na(`Historic Glucose mmol/L`)) %>% 
     mutate(
+      `Device Timestamp` = as_datetime(dmy_hm(`Device Timestamp`))
+    ) %>% 
+    filter(`Device Timestamp` >= ymd_hms(max(`Device Timestamp`)) - recent_days * 60 * 60 * 24) %>% 
+    mutate(
       weekend = factor(
-        wday(glucose_data$`Device Timestamp`, label = TRUE) %in% c("Sat", "Sun"),
+        wday(`Device Timestamp`, label = TRUE) %in% c("Sat", "Sun"),
         c(FALSE, TRUE),
         c("Mon-Fri", "Sat-Sun")
       )

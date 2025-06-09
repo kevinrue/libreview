@@ -14,7 +14,7 @@ source("plot_timeline_recent.R")
 source("heatmap_time_all.R")
 source("cluster_time_all.R")
 source("plot_time_overlaid.R")
-source("plot_histogram_all.R")
+source("plot_histogram_recent.R")
 source("print_stats_all.R")
 
 glucose_data <- import_glucose_data(default_glucose_files)
@@ -57,10 +57,12 @@ ui <- page_navbar(
           nav_panel(title = "Heatmap",
             plotOutput("heatmap_time_all", width = "100%", height = "400px")
           ),
+          nav_panel(title = "Histogram",
+            plotOutput("plot_histogram_recent", width = "100%", height = "400px")
+          )
         )
       )
     ),
-    plotOutput("plot_histogram_all", width = "100%", height = "400px"),
     uiOutput("print_stats_all")
   ),
   nav_panel(
@@ -191,9 +193,10 @@ server <- function(input, output, session) {
     date_type_colors
   )})
   
-  output$plot_histogram_all <- renderPlot({plot_histogram_all(
+  output$plot_histogram_recent <- renderPlot({plot_histogram_recent(
     rv$glucose_data$historic,
-    config
+    config,
+    input[["recent_days"]]
   )})
   
   output$print_stats_all <- renderUI({print_stats_all(

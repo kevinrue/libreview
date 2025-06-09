@@ -10,7 +10,7 @@ library(RColorBrewer)
 source("constants.R")
 source("import.R")
 source("cleanup.R")
-source("plot_time_all.R")
+source("plot_timeline_recent.R")
 source("heatmap_time_all.R")
 source("cluster_time_all.R")
 source("plot_time_overlaid.R")
@@ -52,8 +52,8 @@ ui <- page_navbar(
         navset_card_pill(
           placement = "above",
           nav_panel(title = "Timeline",
-            plotOutput("plot_time_all", width = "100%", height = "400px",
-              click = clickOpts(id ="plot_time_all_click"))),
+            plotOutput("plot_timeline_recent", width = "100%", height = "400px",
+              click = clickOpts(id ="plot_timeline_recent_click"))),
           nav_panel(title = "Heatmap",
             plotOutput("heatmap_time_all", width = "100%", height = "400px")
           ),
@@ -161,7 +161,7 @@ server <- function(input, output, session) {
     }
   })
   
-  output$plot_time_all <- renderPlot({plot_time_all(
+  output$plot_timeline_recent <- renderPlot({plot_timeline_recent(
     rv$glucose_data,
     config,
     input[["recent_days"]],
@@ -169,8 +169,8 @@ server <- function(input, output, session) {
     rv[["click_datetime"]]
   )})
   
-  observeEvent(input[["plot_time_all_click"]], {
-    click_datetime <- input[["plot_time_all_click"]][["x"]]
+  observeEvent(input[["plot_timeline_recent_click"]], {
+    click_datetime <- input[["plot_timeline_recent_click"]][["x"]]
     rv[["click_datetime"]] <- click_datetime
   })
   

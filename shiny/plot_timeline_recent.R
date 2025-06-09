@@ -1,4 +1,4 @@
-plot_time_all <- function(glucose_data, config, recent_days, highlight_weekends, click_datetime) {
+plot_timeline_recent <- function(glucose_data, config, recent_days, highlight_weekends, click_datetime) {
   if (is.null(glucose_data)) {
     return(NULL)
   }

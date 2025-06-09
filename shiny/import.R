@@ -66,7 +66,10 @@ import_date_type_colors <- function(date_type_file) {
       file = date_type_file,
       col_names = c("date", "color"),
       show_col_types = FALSE
-    ) %>%
+    ) %>% 
+      mutate(
+        date = replace_na(date, "NA")
+      ) %>%
       deframe()
   } else {
     NULL

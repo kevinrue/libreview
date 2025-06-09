@@ -1,4 +1,4 @@
-heatmap_time_all <- function(glucose_data, date_annotations, recent_days, highlight_weekends, cluster_days) {
+heatmap_time_all <- function(glucose_data, date_annotations, recent_days, highlight_weekends, cluster_days, date_type_colors) {
   if (is.null(glucose_data)) {
     return(NULL)
   }
@@ -71,6 +71,14 @@ heatmap_time_all <- function(glucose_data, date_annotations, recent_days, highli
     select(phase, tick)
   rownames(plot_data) <- strftime(as.Date(rownames(plot_data)), format = "%a %d %b")
   rownames(plot_row_group) <- strftime(as.Date(rownames(plot_row_group)), format = "%a %d %b")
+  annot_colors <- list(
+    tick = c("6h" = "black", "other" = "white"),
+    phase = c("day" = "yellow", "night" = "darkblue"),
+    weekend = c("Mon-Fri" = "white", "Sat-Sun" = "orange")
+  )
+  if (!is.null(date_type_colors)) {
+    annot_colors[["type"]] <- date_type_colors
+  }
   pheatmap(
     mat = plot_data,
     color = colorRampPalette(rev(brewer.pal(n = 11, name = "Spectral")))(100),
@@ -83,11 +91,7 @@ heatmap_time_all <- function(glucose_data, date_annotations, recent_days, highli
     cluster_rows = cluster_days,
     cluster_cols = FALSE,
     show_colnames = FALSE,
-    annotation_colors = list(
-      tick = c("6h" = "black", "other" = "white"),
-      phase = c("day" = "yellow", "night" = "darkblue"),
-      weekend = c("Mon-Fri" = "white", "Sat-Sun" = "orange")
-    )
+    annotation_colors = annot_colors
   )
 }
 

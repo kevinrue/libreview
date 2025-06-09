@@ -1,5 +1,6 @@
 default_glucose_files <- list.files("../data/glucose/", pattern = "*.csv$", full.names = TRUE)
 default_date_annotations_file <- "../data/date_annotations.csv"
+default_day_type_file <- "../data/date_type_colors.csv"
 
 import_glucose_data <- function(glucose_files) {
   if(length(glucose_files) < 1L) {
@@ -56,5 +57,18 @@ import_date_annotations <- function(date_annotations_file) {
       )
   } else {
     tibble(date = character(0), type = character(0))
+  }
+}
+
+import_date_type_colors <- function(date_type_file) {
+  if (file.exists(date_type_file)) {
+    date_colors <- read_csv(
+      file = date_type_file,
+      col_names = c("date", "color"),
+      show_col_types = FALSE
+    ) %>%
+      deframe()
+  } else {
+    NULL
   }
 }

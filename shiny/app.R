@@ -37,11 +37,11 @@ ui <- page_navbar(
   ),
   fillable = FALSE,
   nav_panel(
-    title = "Full timeline",
+    title = "Recent data",
     card(
       p(emoji("lemon"), em("When life gives you data... make a dashboard!"), emoji("milk_glass"), align="center")
     ),
-    card(
+    card(height = "700px",
       card_header("Recent days"),
       layout_sidebar(
         sidebar = sidebar(
@@ -49,8 +49,15 @@ ui <- page_navbar(
           numericInput("recent_days", "Number of days", 14L, min = 1, max = 30),
           checkboxInput("highlight_weekends", label = "Show weekends", value = TRUE)
         ),
-        plotOutput("plot_time_all", width = "100%", height = "400px", click = clickOpts(id ="plot_time_all_click")),
-        plotOutput("heatmap_time_all", width = "100%", height = "400px")
+        navset_card_pill(
+          placement = "above",
+          nav_panel(title = "Timeline",
+            plotOutput("plot_time_all", width = "100%", height = "400px",
+              click = clickOpts(id ="plot_time_all_click"))),
+          nav_panel(title = "Heatmap",
+            plotOutput("heatmap_time_all", width = "100%", height = "400px")
+          ),
+        )
       )
     ),
     plotOutput("plot_histogram_all", width = "100%", height = "400px"),

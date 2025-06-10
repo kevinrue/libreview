@@ -57,6 +57,7 @@ ui <- page_navbar(
             plotOutput("plot_timeline_recent", width = "100%", height = "400px",
               click = clickOpts(id ="plot_timeline_recent_click"))),
           nav_panel(title = "Heatmap",
+            uiOutput("banner_missing_date_annotations"),
             plotOutput("heatmap_time_all", width = "100%", height = "400px")
           ),
           nav_panel(title = "Histogram",
@@ -216,6 +217,16 @@ server <- function(input, output, session) {
   output$print_stats_all <- renderUI({print_stats_all(
     rv$glucose_data$historic
   )})
+  
+  output$banner_missing_date_annotations <- renderUI({
+    if (all(rv$date_annotations$type == "NA")) {
+      card(
+        style="color:#8a8a86;background-color:#f3f593;",
+        height = "60px",
+        p(emoji("light bulb"), em("Tip: Import date annotations to display on the side of the heatmap!"))
+      )
+    }
+  })
 }
 
 # Create Shiny app ----

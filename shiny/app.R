@@ -57,7 +57,7 @@ ui <- page_navbar(
             plotOutput("plot_timeline_recent", width = "100%", height = "400px",
               click = clickOpts(id ="plot_timeline_recent_click"))),
           nav_panel(title = "Heatmap",
-            uiOutput("banner_missing_date_annotations"),
+            uiOutput("banner_heatmap_missing_date_annotations"),
             plotOutput("heatmap_time_all", width = "100%", height = "400px")
           ),
           nav_panel(title = "Histogram",
@@ -76,6 +76,7 @@ ui <- page_navbar(
         uiOutput("date_annotation_file_ui")
       ),
       card(
+        uiOutput("banner_overlaid_missing_date_annotations"),
         plotOutput("plot_time_overlaid", width = "100%", height = "400px")
       )
     )
@@ -111,7 +112,6 @@ server <- function(input, output, session) {
   }, ignoreNULL = FALSE)
   
   observeEvent(input[["help_main"]], {
-    print(ls(input))
     showModal(
       modalDialog(
         size = "xl",
@@ -142,7 +142,8 @@ server <- function(input, output, session) {
   
   output$date_annotation_file_ui <- renderUI({
     if (all(rv$date_annotations$type == "NA")) {
-      fileInput("date_annotation_file", label = "Date annotations", multiple = FALSE, accept = ".csv")
+      # fileInput("date_annotation_file", label = "Date annotations", multiple = FALSE, accept = ".csv")
+      NULL
     } else {
       tagList(
         shinyWidgets::pickerInput(
@@ -218,14 +219,42 @@ server <- function(input, output, session) {
     rv$glucose_data$historic
   )})
   
-  output$banner_missing_date_annotations <- renderUI({
+  output$banner_heatmap_missing_date_annotations <- renderUI({
     if (all(rv$date_annotations$type == "NA")) {
       card(
         style="color:#8a8a86;background-color:#f3f593;",
         height = "60px",
-        p(emoji("light bulb"), em("Tip: Import date annotations to display on the side of the heatmap!"))
+        p(
+          emoji("light bulb"),
+          em("Tip: Import date annotations to display them on the side of the heatmap!"),
+          actionLink("date_annotation_modal_open", "Click here to import")
+        )
       )
     }
+  })
+  
+  output$banner_overlaid_missing_date_annotations <- renderUI({
+    if (all(rv$date_annotations$type == "NA")) {
+      card(
+        style="color:#8a8a86;background-color:#f3f593;",
+        height = "60px",
+        p(
+          emoji("light bulb"),
+          em("Tip: Import date annotations to color days by type!"),
+          actionLink("date_annotation_modal_open", "Click here to import")
+        )
+      )
+    }
+  })
+  
+  observeEvent(input[["date_annotation_modal_open"]], {
+    showModal(
+      modalDialog(
+        size = "xl",
+        easyClose = TRUE,
+        fileInput("date_annotation_file", label = "Date annotations", multiple = FALSE, accept = ".csv")
+      )
+    )
   })
 }
 

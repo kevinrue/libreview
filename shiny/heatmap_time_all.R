@@ -98,7 +98,7 @@ heatmap_time_all <- function(
   )
   rownames(plot_data) <- strftime(as.Date(rownames(plot_data)), format = "%a %d %b")
   rownames(plot_row_group) <- strftime(as.Date(rownames(plot_row_group)), format = "%a %d %b")
-  Heatmap(
+  ht_list <- Heatmap(
     matrix = plot_data, name = "Glucose mmol/L",
     col = colorRampPalette(rev(brewer.pal(n = 11, name = "Spectral")))(100),
     top_annotation = column_ha,
@@ -107,6 +107,7 @@ heatmap_time_all <- function(
     cluster_columns = FALSE,
     show_column_names = FALSE
   )
+  draw(ht_list, heatmap_legend_side = "left", annotation_legend_side = "bottom")
 }
 
 ## test ----

@@ -13,7 +13,7 @@ source("import.R")
 source("cleanup.R")
 source("banners.R")
 source("plot_timeline_recent.R")
-source("heatmap_time_all.R")
+source("heatmap_time_recent.R")
 source("cluster_time_all.R")
 source("plot_time_overlaid.R")
 source("plot_histogram_recent.R")
@@ -60,9 +60,8 @@ ui <- page_navbar(
             plotOutput("plot_timeline_recent", width = "100%", height = "400px",
               click = clickOpts(id ="plot_timeline_recent_click"))),
           nav_panel(title = "Heatmap",
-            uiOutput("banner_heatmap_missing_date_annotations"),
-            uiOutput("banner_heatmap_missing_custom_date_type_colours"),
-            plotOutput("heatmap_time_all", width = "100%", height = "400px")
+            uiOutput("banner_heatmap_time_recent"),
+            plotOutput("heatmap_time_recent", width = "100%", height = "400px")
           ),
           nav_panel(title = "Histogram",
             plotOutput("plot_histogram_recent", width = "100%", height = "400px")
@@ -80,8 +79,7 @@ ui <- page_navbar(
         uiOutput("date_annotation_file_ui")
       ),
       card(
-        uiOutput("banner_overlaid_missing_date_annotations"),
-        uiOutput("banner_overlaid_missing_custom_date_type_colours"),
+        uiOutput("banner_plot_time_overlaid"),
         plotOutput("plot_time_overlaid", width = "100%", height = "400px")
       )
     )
@@ -210,7 +208,7 @@ server <- function(input, output, session) {
     rv$date_type_colors
   )})
   
-  output$heatmap_time_all <- renderPlot({heatmap_time_all(
+  output$heatmap_time_recent <- renderPlot({heatmap_time_recent(
     rv$glucose_data$historic,
     rv$date_annotations,
     input[["recent_days"]],
@@ -229,40 +227,12 @@ server <- function(input, output, session) {
     rv$glucose_data$historic
   )})
   
-  output$banner_heatmap_missing_date_annotations <- renderUI({
-    if (all(rv$date_annotations$type == "NA")) {
-      card(
-        style="color:#8a8a86;background-color:#f3f593;",
-        height = "60px",
-        p(
-          emoji("light bulb"),
-          em("Tip: Import date annotations to display them on the side of the heatmap!"),
-          actionLink("date_annotation_modal_open", "Click here to import")
-        )
-      )
-    }
+  output$banner_heatmap_time_recent <- renderUI({
+    banner_heatmap_time_recent(rv$date_annotations, custom_date_type_colors)
   })
   
-  output$banner_heatmap_missing_custom_date_type_colours <- renderUI({
-    banner_missing_custom_date_type_colours(rv$date_annotations, custom_date_type_colors)
-  })
-  
-  output$banner_overlaid_missing_date_annotations <- renderUI({
-    if (all(rv$date_annotations$type == "NA")) {
-      card(
-        style="color:#8a8a86;background-color:#f3f593;",
-        height = "60px",
-        p(
-          emoji("light bulb"),
-          em("Tip: Import date annotations to color days by type!"),
-          actionLink("date_annotation_modal_open", "Click here to import")
-        )
-      )
-    }
-  })
-  
-  output$banner_overlaid_missing_custom_date_type_colours <- renderUI({
-    banner_missing_custom_date_type_colours(rv$date_annotations, custom_date_type_colors)
+  output$banner_plot_time_overlaid <- renderUI({
+    banner_plot_time_overlaid(rv$date_annotations, custom_date_type_colors)
   })
   
   observeEvent(input[["date_annotation_modal_open"]], {

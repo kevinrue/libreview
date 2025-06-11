@@ -1,4 +1,4 @@
-heatmap_time_all <- function(
+heatmap_time_recent <- function(
   glucose_data_historic,
   date_annotations,
   recent_days,
@@ -129,4 +129,4 @@ heatmap_time_all <- function(
 # 
 # date_type_colors <- import_date_type_colors(default_day_type_file)
 # 
-# heatmap_time_all(glucose_data_historic, date_annotations, recent_days, highlight_weekends, cluster_days, date_type_colors)
+# heatmap_time_recent(glucose_data_historic, date_annotations, recent_days, highlight_weekends, cluster_days, date_type_colors)

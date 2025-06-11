@@ -21,11 +21,13 @@ refactor_na_last <- function(x) {
 
 add_missing_date_type_colors <- function(date_type_colors, date_annotations) {
   if (!is.null(date_type_colors)) {
-    if (!all(names(date_type_colors)) %in% date_annotations$type) {
+    if (!all(date_annotations$type %in% names(date_type_colors))) {
       stop(paste0(
         "Colours supplied do not include all types of dates found in annotations:\n",
         paste(setdiff(date_annotations$type, names(date_type_colors)), collapse = ", ")
       ))
+    } else {
+      return(date_type_colors)
     }
   }
   if (all(date_annotations$type == "NA")) {

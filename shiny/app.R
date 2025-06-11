@@ -28,7 +28,7 @@ date_annotations <- add_missing_date_annotations(glucose_data, date_annotations)
   )
 
 date_type_colors <- import_date_type_colors(default_day_type_file)
-date_type_colors <- add_missing_date_type_colors(date_type_colors, date_annotations)
+custom_date_type_colors <- !is.null(date_type_colors)
 
 config <- yaml::read_yaml("config.yaml")
 
@@ -60,6 +60,7 @@ ui <- page_navbar(
               click = clickOpts(id ="plot_timeline_recent_click"))),
           nav_panel(title = "Heatmap",
             uiOutput("banner_heatmap_missing_date_annotations"),
+            uiOutput("banner_heatmap_missing_custom_date_type_colours"),
             plotOutput("heatmap_time_all", width = "100%", height = "400px")
           ),
           nav_panel(title = "Histogram",
@@ -79,6 +80,7 @@ ui <- page_navbar(
       ),
       card(
         uiOutput("banner_overlaid_missing_date_annotations"),
+        uiOutput("banner_overlaid_missing_custom_date_type_colours"),
         plotOutput("plot_time_overlaid", width = "100%", height = "400px")
       )
     )
@@ -98,7 +100,8 @@ server <- function(input, output, session) {
   
   rv <- reactiveValues(
     glucose_data = glucose_data,
-    date_annotations = date_annotations
+    date_annotations = date_annotations,
+    date_type_colors = date_type_colors
   )
   
   observeEvent(rv$glucose_data, {
@@ -167,15 +170,18 @@ server <- function(input, output, session) {
     if (!is.null(input[["date_annotation_file"]])) {
       date_annotations <- import_date_annotations(input[["date_annotation_file"]][["datapath"]])
       if (!is.null(date_annotations)) {
-        rv$date_annotations <- add_missing_date_annotations(rv$glucose_data, date_annotations) %>% 
+        new_date_annotations <- add_missing_date_annotations(rv$glucose_data, date_annotations) %>% 
           mutate(
             type = refactor_na_last(type)
           )
+        new_date_type_colors <- add_missing_date_type_colors(rv$date_type_colors, date_annotations)
         updatePickerInput(
           session = session, inputId = "day_type",
-          choices = levels(rv$date_annotations$type),
-          selected = levels(rv$date_annotations$type),
+          choices = levels(new_date_annotations$type),
+          selected = levels(new_date_annotations$type),
         )
+        rv$date_annotations <- date_annotations
+        rv$date_type_colors <- new_date_type_colors
         removeModal()
       }
     }
@@ -200,7 +206,7 @@ server <- function(input, output, session) {
     config,
     input[["day_type"]],
     input[["plot_time_overlaid_color_logical"]],
-    date_type_colors
+    rv$date_type_colors
   )})
   
   output$heatmap_time_all <- renderPlot({heatmap_time_all(
@@ -209,7 +215,7 @@ server <- function(input, output, session) {
     input[["recent_days"]],
     input[["highlight_weekends"]],
     cluster_days = FALSE,
-    date_type_colors
+    rv$date_type_colors
   )})
   
   output$plot_histogram_recent <- renderPlot({plot_histogram_recent(
@@ -236,6 +242,22 @@ server <- function(input, output, session) {
     }
   })
   
+  output$banner_heatmap_missing_custom_date_type_colours <- renderUI({
+    if (!all(rv$date_annotations$type == "NA") && !custom_date_type_colors) {
+      card(
+        style="color:#8a8a86;background-color:#f3f593;",
+        height = "60px",
+        p(
+          emoji("light bulb"),
+          em("Tip: Default colour scheme used for day types."),
+          em("Add a file"),
+          tags$code("../data/data_type_colors.csv"),
+          em("to create a custom colour scheme.")
+        )
+      )
+    }
+  })
+  
   output$banner_overlaid_missing_date_annotations <- renderUI({
     if (all(rv$date_annotations$type == "NA")) {
       card(
@@ -245,6 +267,22 @@ server <- function(input, output, session) {
           emoji("light bulb"),
           em("Tip: Import date annotations to color days by type!"),
           actionLink("date_annotation_modal_open", "Click here to import")
+        )
+      )
+    }
+  })
+  
+  output$banner_overlaid_missing_custom_date_type_colours <- renderUI({
+    if (!all(rv$date_annotations$type == "NA") && !custom_date_type_colors) {
+      card(
+        style="color:#8a8a86;background-color:#f3f593;",
+        height = "60px",
+        p(
+          emoji("light bulb"),
+          em("Tip: Default colour scheme used for day types."),
+          em("Add a file"),
+          tags$code("../data/data_type_colors.csv"),
+          em("to create a custom colour scheme.")
         )
       )
     }

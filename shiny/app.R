@@ -28,6 +28,7 @@ date_annotations <- add_missing_date_annotations(glucose_data, date_annotations)
   )
 
 date_type_colors <- import_date_type_colors(default_day_type_file)
+date_type_colors <- add_missing_date_type_colors(date_type_colors, date_annotations)
 
 config <- yaml::read_yaml("config.yaml")
 
@@ -198,7 +199,8 @@ server <- function(input, output, session) {
     rv$date_annotations,
     config,
     input[["day_type"]],
-    input[["plot_time_overlaid_color_logical"]]
+    input[["plot_time_overlaid_color_logical"]],
+    date_type_colors
   )})
   
   output$heatmap_time_all <- renderPlot({heatmap_time_all(

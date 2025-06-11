@@ -1,5 +1,12 @@
-plot_time_overlaid <- function(glucose_data, date_annotations, config, day_type, color_day_type) {
-  plot_data <- glucose_data %>% 
+plot_time_overlaid <- function(
+    glucose_data_historic,
+  date_annotations,
+  config,
+  day_type,
+  color_day_type,
+  date_type_colors
+) {
+  plot_data <- glucose_data_historic %>% 
     select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
     filter(!is.na(`Historic Glucose mmol/L`)) %>% 
     separate(`Device Timestamp`, c("Date", "Time"), sep = " ") %>% 
@@ -37,7 +44,9 @@ plot_time_overlaid <- function(glucose_data, date_annotations, config, day_type,
       ymin = config$target$min, ymax = config$target$max,
       fill = "palegreen", alpha = 0.5)
   if (color_day_type) {
-    gg <- gg + geom_line(aes(`Device Timestamp`, `Historic Glucose mmol/L`, group = Date, colour = type))
+    gg <- gg +
+      geom_line(aes(`Device Timestamp`, `Historic Glucose mmol/L`, group = Date, colour = type)) +
+      scale_colour_manual(values = date_type_colors)
   } else {
     gg <- gg + geom_line(aes(`Device Timestamp`, `Historic Glucose mmol/L`, group = Date))
   }
@@ -56,3 +65,24 @@ plot_time_overlaid <- function(glucose_data, date_annotations, config, day_type,
     theme(plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"))
   return(gg)
 }
+
+## test ----
+
+# glucose_data <- import_glucose_data(default_glucose_files)
+# glucose_data_historic <- glucose_data$historic
+# 
+# date_annotations <- import_date_annotations(default_date_annotations_file)
+# date_annotations <- add_missing_date_annotations(glucose_data, date_annotations) %>%
+#   mutate(
+#     type = refactor_na_last(type)
+#   )
+# 
+# recent_days <- 30L
+# 
+# highlight_weekends <- TRUE
+# 
+# cluster_days <- FALSE
+# 
+# date_type_colors <- import_date_type_colors(default_day_type_file)
+# 
+# plot_time_overlaid(glucose_data, date_annotations, config, day_type, color_day_type, date_type_colors)

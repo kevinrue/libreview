@@ -74,13 +74,20 @@ ui <- page_navbar(
   nav_panel(
     title = overlay_days_id,
     layout_columns(
-      col_widths = c(3, 9),
+      # col_widths = c(3, 9),
+      # card(
+      #   uiOutput("date_annotation_file_ui")
+      # ),
       card(
-        uiOutput("date_annotation_file_ui")
-      ),
-      card(
-        uiOutput("banner_plot_time_overlaid"),
-        plotOutput("plot_time_overlaid", width = "100%", height = "400px")
+        card_header("Overlaid days"),
+        layout_sidebar(
+          sidebar = sidebar(
+            open = "open", # "closed"
+            uiOutput("date_annotation_file_ui")
+          ),
+          uiOutput("banner_plot_time_overlaid"),
+          plotOutput("plot_time_overlaid", width = "100%", height = "400px")
+        )
       )
     )
   ),
@@ -146,8 +153,7 @@ server <- function(input, output, session) {
   
   output$date_annotation_file_ui <- renderUI({
     if (all(rv$date_annotations$type == "NA")) {
-      # fileInput("date_annotation_file", label = "Date annotations", multiple = FALSE, accept = ".csv")
-      NULL
+      em("Load data to enable widgets.")
     } else {
       tagList(
         shinyWidgets::pickerInput(

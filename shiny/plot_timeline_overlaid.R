@@ -101,22 +101,22 @@ plot_timeline_overlaid <- function(
 
 ## test ----
 
-glucose_data <- import_glucose_data(default_glucose_files)
-
-date_annotations <- import_date_annotations(default_date_annotations_file)
-date_annotations <- add_missing_date_annotations(glucose_data, date_annotations) %>%
-  mutate(
-    type = refactor_na_last(type)
-  )
-
-config <- yaml::read_yaml("config.yaml")
-
-day_type <- unique(date_annotations$type)
-
-color_day_type <- FALSE
-
-date_type_colors <- import_date_type_colors(default_day_type_file)
-
-search_notes <- "banana"
-
-plot_timeline_overlaid(glucose_data, date_annotations, config, day_type, color_day_type, date_type_colors, search_notes)
+# glucose_data <- import_glucose_data(default_glucose_files)
+# 
+# date_annotations <- import_date_annotations(default_date_annotations_file)
+# date_annotations <- add_missing_date_annotations(glucose_data, date_annotations) %>%
+#   mutate(
+#     type = refactor_na_last(type)
+#   )
+# 
+# config <- yaml::read_yaml("config.yaml")
+# 
+# day_type <- unique(date_annotations$type)
+# 
+# color_day_type <- FALSE
+# 
+# date_type_colors <- import_date_type_colors(default_day_type_file)
+# 
+# search_notes <- "banana"
+# 
+# plot_timeline_overlaid(glucose_data, date_annotations, config, day_type, color_day_type, date_type_colors, search_notes)

@@ -1,4 +1,4 @@
-plot_time_overlaid <- function(
+plot_timeline_overlaid <- function(
     glucose_data_historic,
   date_annotations,
   config,
@@ -85,4 +85,4 @@ plot_time_overlaid <- function(
 # 
 # date_type_colors <- import_date_type_colors(default_day_type_file)
 # 
-# plot_time_overlaid(glucose_data, date_annotations, config, day_type, color_day_type, date_type_colors)
+# plot_timeline_overlaid(glucose_data, date_annotations, config, day_type, color_day_type, date_type_colors)

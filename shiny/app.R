@@ -15,7 +15,7 @@ source("banners.R")
 source("plot_timeline_recent.R")
 source("heatmap_time_recent.R")
 source("cluster_time_all.R")
-source("plot_time_overlaid.R")
+source("plot_timeline_overlaid.R")
 source("plot_histogram_recent.R")
 source("print_stats_all.R")
 source("help.R")
@@ -85,8 +85,8 @@ ui <- page_navbar(
             open = "open", # "closed"
             uiOutput("date_annotation_file_ui")
           ),
-          uiOutput("banner_plot_time_overlaid"),
-          plotOutput("plot_time_overlaid", width = "100%", height = "400px")
+          uiOutput("banner_plot_timeline_overlaid"),
+          plotOutput("plot_timeline_overlaid", width = "100%", height = "400px")
         )
       )
     )
@@ -166,7 +166,7 @@ server <- function(input, output, session) {
           ),
           multiple = TRUE
         ),
-        checkboxInput("plot_time_overlaid_color_logical", "Color by type", value = TRUE)
+        checkboxInput("plot_timeline_overlaid_color_logical", "Color by type", value = TRUE)
       )
     }
   })
@@ -205,12 +205,12 @@ server <- function(input, output, session) {
     rv[["click_datetime"]] <- click_datetime
   })
   
-  output$plot_time_overlaid <- renderPlot({plot_time_overlaid(
+  output$plot_timeline_overlaid <- renderPlot({plot_timeline_overlaid(
     rv$glucose_data$historic,
     rv$date_annotations,
     config,
     input[["day_type"]],
-    input[["plot_time_overlaid_color_logical"]],
+    input[["plot_timeline_overlaid_color_logical"]],
     rv$date_type_colors
   )})
   
@@ -237,8 +237,8 @@ server <- function(input, output, session) {
     banner_heatmap_time_recent(rv$date_annotations, custom_date_type_colors)
   })
   
-  output$banner_plot_time_overlaid <- renderUI({
-    banner_plot_time_overlaid(rv$date_annotations, custom_date_type_colors)
+  output$banner_plot_timeline_overlaid <- renderUI({
+    banner_plot_timeline_overlaid(rv$date_annotations, custom_date_type_colors)
   })
   
   observeEvent(input[["date_annotation_modal_open"]], {

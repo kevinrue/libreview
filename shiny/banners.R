@@ -27,7 +27,7 @@ banner_heatmap_time_recent <- function(date_annotations, custom_date_type_colors
   return(banner)
 }
 
-banner_plot_time_overlaid <- function(date_annotations, custom_date_type_colors) {
+banner_plot_timeline_overlaid <- function(date_annotations, custom_date_type_colors) {
   banner <- if (all(date_annotations$type == "NA")) {
     card(
       style="color:#8a8a86;background-color:#f3f593;",

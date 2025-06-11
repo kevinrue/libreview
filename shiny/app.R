@@ -152,10 +152,11 @@ server <- function(input, output, session) {
   })
   
   output$date_annotation_file_ui <- renderUI({
-    if (all(rv$date_annotations$type == "NA")) {
-      em("Load data to enable widgets.")
-    } else {
-      tagList(
+    out <- tagList(
+      textInput("search_notes", label = "Search notes", value = "", placeholder = "Keyword")
+    )
+    if (!all(rv$date_annotations$type == "NA")) {
+      out <- append(out, tagList(
         shinyWidgets::pickerInput(
           "day_type", "Type",
           choices = levels(rv$date_annotations$type),
@@ -167,8 +168,9 @@ server <- function(input, output, session) {
           multiple = TRUE
         ),
         checkboxInput("plot_timeline_overlaid_color_logical", "Color by type", value = TRUE)
-      )
+      ))
     }
+    return(out)
   })
   
   observeEvent(input[["date_annotation_file"]], {
@@ -206,12 +208,13 @@ server <- function(input, output, session) {
   })
   
   output$plot_timeline_overlaid <- renderPlot({plot_timeline_overlaid(
-    rv$glucose_data$historic,
+    rv$glucose_data,
     rv$date_annotations,
     config,
     input[["day_type"]],
     input[["plot_timeline_overlaid_color_logical"]],
-    rv$date_type_colors
+    rv$date_type_colors,
+    input[["search_notes"]]
   )})
   
   output$heatmap_time_recent <- renderPlot({heatmap_time_recent(

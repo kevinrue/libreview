@@ -23,7 +23,6 @@ plot_timeline_overlaid <- function(
     }
     keep_dates <- notes_data %>% 
       pull(Date)
-    print(keep_dates)
     plot_data <- plot_data %>% 
       filter(Date %in% keep_dates)
   } else {

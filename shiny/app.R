@@ -11,6 +11,7 @@ library(yaml)
 source("constants.R")
 source("import.R")
 source("cleanup.R")
+source("banners.R")
 source("plot_timeline_recent.R")
 source("heatmap_time_all.R")
 source("cluster_time_all.R")
@@ -243,19 +244,7 @@ server <- function(input, output, session) {
   })
   
   output$banner_heatmap_missing_custom_date_type_colours <- renderUI({
-    if (!all(rv$date_annotations$type == "NA") && !custom_date_type_colors) {
-      card(
-        style="color:#8a8a86;background-color:#f3f593;",
-        height = "60px",
-        p(
-          emoji("light bulb"),
-          em("Tip: Default colour scheme used for day types."),
-          em("Add a file"),
-          tags$code("../data/data_type_colors.csv"),
-          em("to create a custom colour scheme.")
-        )
-      )
-    }
+    banner_missing_custom_date_type_colours(rv$date_annotations, custom_date_type_colors)
   })
   
   output$banner_overlaid_missing_date_annotations <- renderUI({
@@ -273,19 +262,7 @@ server <- function(input, output, session) {
   })
   
   output$banner_overlaid_missing_custom_date_type_colours <- renderUI({
-    if (!all(rv$date_annotations$type == "NA") && !custom_date_type_colors) {
-      card(
-        style="color:#8a8a86;background-color:#f3f593;",
-        height = "60px",
-        p(
-          emoji("light bulb"),
-          em("Tip: Default colour scheme used for day types."),
-          em("Add a file"),
-          tags$code("../data/data_type_colors.csv"),
-          em("to create a custom colour scheme.")
-        )
-      )
-    }
+    banner_missing_custom_date_type_colours(rv$date_annotations, custom_date_type_colors)
   })
   
   observeEvent(input[["date_annotation_modal_open"]], {

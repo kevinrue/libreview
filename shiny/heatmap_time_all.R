@@ -1,8 +1,15 @@
-heatmap_time_all <- function(glucose_data, date_annotations, recent_days, highlight_weekends, cluster_days, date_type_colors) {
-  if (is.null(glucose_data)) {
+heatmap_time_all <- function(
+  glucose_data_historic,
+  date_annotations,
+  recent_days,
+  highlight_weekends,
+  cluster_days,
+  date_type_colors
+) {
+  if (is.null(glucose_data_historic)) {
     return(NULL)
   }
-  keep_dates <- glucose_data %>% 
+  keep_dates <- glucose_data_historic %>% 
     select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
     filter(!is.na(`Historic Glucose mmol/L`)) %>% 
     mutate(
@@ -16,9 +23,9 @@ heatmap_time_all <- function(glucose_data, date_annotations, recent_days, highli
     summarise(n_obs = n()) %>% 
     filter(n_obs > 50) %>% 
     pull(Date)
-  min_date_keep <- as.Date(max(dmy_hm(glucose_data$`Device Timestamp`)) - recent_days * 60 * 60 * 24)
+  min_date_keep <- as.Date(max(dmy_hm(glucose_data_historic$`Device Timestamp`)) - recent_days * 60 * 60 * 24)
   keep_dates <- keep_dates[as.Date(keep_dates) >= min_date_keep]
-  plot_data <- glucose_data %>% 
+  plot_data <- glucose_data_historic %>% 
     select(`Device Timestamp`, `Historic Glucose mmol/L`) %>% 
     filter(!is.na(`Historic Glucose mmol/L`)) %>% 
     mutate(
@@ -37,14 +44,7 @@ heatmap_time_all <- function(glucose_data, date_annotations, recent_days, highli
   plot_row_group <- tibble(
     date = rownames(plot_data)
   )
-  if (!all(date_annotations$type == "NA")) {
-    plot_row_group <- plot_row_group %>% left_join(
-      date_annotations %>%
-        mutate(
-          date = format_ISO8601(as.Date(as_date(dmy(date))))
-        ),
-      by = "date")
-  }
+  row_annot_colors <- list()
   if (highlight_weekends) {
     plot_row_group <- plot_row_group %>% 
       mutate(
@@ -54,10 +54,27 @@ heatmap_time_all <- function(glucose_data, date_annotations, recent_days, highli
           c("Mon-Fri", "Sat-Sun")
         )
       )
+    row_annot_colors[["weekend"]] <- c("Mon-Fri" = "white", "Sat-Sun" = "orange")
+  }
+  if (!all(date_annotations$type == "NA")) {
+    plot_row_group <- plot_row_group %>% left_join(
+      date_annotations %>%
+        mutate(
+          date = format_ISO8601(as.Date(as_date(dmy(date))))
+        ),
+      by = "date")
   }
   plot_row_group <- plot_row_group %>%
     column_to_rownames("date")
-  plot_column_group <- tibble(
+  if (!is.null(date_type_colors)) {
+    row_annot_colors[["type"]] <- date_type_colors
+  }
+  row_ha <- HeatmapAnnotation(
+    which = "row",
+    df = plot_row_group,
+    col = row_annot_colors, show_annotation_name = FALSE
+  )
+  column_annotations <- tibble(
     time = sort(unique(colnames(plot_data))),
     datetime = as_datetime(ymd_hms(paste(Sys.Date(), time))),
     phase = factor(ifelse(
@@ -66,41 +83,39 @@ heatmap_time_all <- function(glucose_data, date_annotations, recent_days, highli
       no = "night"
     ), levels = c("day", "night")),
     tick = factor(ifelse(time %in% c("00:00:00", "06:00:00", "12:00:00", "18:00:00", "23:45:00"), yes = "6h", no = "other"))
-  ) %>% 
-    column_to_rownames("time") %>% 
+  ) %>%
+    column_to_rownames("time") %>%
     select(phase, tick)
+  column_ha <- HeatmapAnnotation(
+    which = "column",
+    tick = column_annotations$tick,
+    phase = column_annotations$phase,
+    col = list(
+      tick = c("6h" = "black", "other" = "white"),
+      phase = c("day" = "#fafa57", "night" = "#323796")
+    ),
+    show_annotation_name = FALSE
+  )
   rownames(plot_data) <- strftime(as.Date(rownames(plot_data)), format = "%a %d %b")
   rownames(plot_row_group) <- strftime(as.Date(rownames(plot_row_group)), format = "%a %d %b")
-  annot_colors <- list(
-    tick = c("6h" = "black", "other" = "white"),
-    phase = c("day" = "yellow", "night" = "darkblue"),
-    weekend = c("Mon-Fri" = "white", "Sat-Sun" = "orange")
-  )
-  if (!is.null(date_type_colors)) {
-    annot_colors[["type"]] <- date_type_colors
-  }
-  pheatmap(
-    mat = plot_data,
-    color = colorRampPalette(rev(brewer.pal(n = 11, name = "Spectral")))(100),
-    border_color = NA,
-    breaks = seq(3.9, 13.3, length.out = 100),
-    annotation_row = plot_row_group,
-    annotation_col = plot_column_group,
-    annotation_names_col = FALSE,
-    annotation_names_row = FALSE,
-    cluster_rows = cluster_days,
-    cluster_cols = FALSE,
-    show_colnames = FALSE,
-    annotation_colors = annot_colors
+  Heatmap(
+    matrix = plot_data, name = "Glucose mmol/L",
+    col = colorRampPalette(rev(brewer.pal(n = 11, name = "Spectral")))(100),
+    top_annotation = column_ha,
+    left_annotation = row_ha,
+    cluster_rows = FALSE,
+    cluster_columns = FALSE,
+    show_column_names = FALSE
   )
 }
 
 ## test ----
 
 # glucose_data <- import_glucose_data(default_glucose_files)
+# glucose_data_historic <- glucose_data$historic
 # 
 # date_annotations <- import_date_annotations(default_date_annotations_file)
-# date_annotations <- add_missing_date_annotations(glucose_data, date_annotations) %>% 
+# date_annotations <- add_missing_date_annotations(glucose_data, date_annotations) %>%
 #   mutate(
 #     type = refactor_na_last(type)
 #   )
@@ -111,6 +126,6 @@ heatmap_time_all <- function(glucose_data, date_annotations, recent_days, highli
 # 
 # cluster_days <- FALSE
 # 
-# glucose_data <- glucose_data$historic
+# date_type_colors <- import_date_type_colors(default_day_type_file)
 # 
-# heatmap_time_all(glucose_data, date_annotations, recent_days, highlight_weekends, cluster_days)
+# heatmap_time_all(glucose_data_historic, date_annotations, recent_days, highlight_weekends, cluster_days, date_type_colors)

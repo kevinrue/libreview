@@ -9,6 +9,7 @@ library(RColorBrewer)
 library(yaml)
 
 source("constants.R")
+source("alerts.R")
 source("import.R")
 source("cleanup.R")
 source("banners.R")
@@ -42,6 +43,7 @@ ui <- page_navbar(
     theme = "dark"
   ),
   fillable = FALSE,
+  header = uiOutput("alert_header"),
   nav_panel(
     title = recent_data_id,
     card(
@@ -99,7 +101,8 @@ ui <- page_navbar(
   #   nav_item(tags$a("Posit", href = "https://posit.co")),
   #   nav_item(tags$a("Shiny", href = "https://shiny.posit.co"))
   # ),
-  nav_item(shiny::actionLink("help_main",label = "", icon = icon("question-circle")))
+  # uiOutput("alert_nav_item"),
+  nav_item(shiny::actionLink("help_main", label = "", icon = icon("question-circle")))
 )
 
 # Define server logic required to draw a histogram ----
@@ -108,7 +111,8 @@ server <- function(input, output, session) {
   rv <- reactiveValues(
     glucose_data = glucose_data,
     date_annotations = date_annotations,
-    date_type_colors = date_type_colors
+    date_type_colors = date_type_colors,
+    alerts = count_alerts(date_annotations, date_type_colors)
   )
   
   observeEvent(rv$glucose_data, {
@@ -253,6 +257,19 @@ server <- function(input, output, session) {
         fileInput("date_annotation_file", label = "Date annotations", multiple = FALSE, accept = ".csv")
       )
     )
+  })
+  
+  output$alert_header <- renderUI({
+    print(rv$alerts)
+    if (rv$alerts > 0L) {
+      card(
+        p(paste("You have ", rv$alerts, "alert(s).")),
+        style="color:#8a8a86;background-color:#f3f593;",
+        height = "60px",
+        gap = 10)
+    } else {
+      NULL
+    }
   })
 }
 

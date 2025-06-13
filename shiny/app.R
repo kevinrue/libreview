@@ -31,7 +31,6 @@ date_annotations <- add_missing_date_annotations(glucose_data, date_annotations)
   )
 
 date_type_colors <- import_date_type_colors(default_day_type_file)
-custom_date_type_colors <- !is.null(date_type_colors)
 
 config <- yaml::read_yaml("config.yaml")
 
@@ -112,7 +111,8 @@ server <- function(input, output, session) {
     glucose_data = glucose_data,
     date_annotations = date_annotations,
     date_type_colors = date_type_colors,
-    alerts = count_alerts(date_annotations, date_type_colors)
+    custom_date_type_colors = !is.null(date_type_colors),
+    alerts = count_alerts(date_annotations, !is.null(date_type_colors))
   )
   
   observeEvent(rv$glucose_data, {
@@ -194,6 +194,7 @@ server <- function(input, output, session) {
         )
         rv$date_annotations <- date_annotations
         rv$date_type_colors <- new_date_type_colors
+        rv$alerts <- count_alerts(date_annotations, rv$custom_date_type_colors)
         removeModal()
       }
     }
@@ -242,11 +243,11 @@ server <- function(input, output, session) {
   )})
   
   output$banner_heatmap_time_recent <- renderUI({
-    banner_heatmap_time_recent(rv$date_annotations, custom_date_type_colors)
+    banner_heatmap_time_recent(rv$date_annotations, rv$custom_date_type_colors)
   })
   
   output$banner_plot_timeline_overlaid <- renderUI({
-    banner_plot_timeline_overlaid(rv$date_annotations, custom_date_type_colors)
+    banner_plot_timeline_overlaid(rv$date_annotations, rv$custom_date_type_colors)
   })
   
   observeEvent(input[["date_annotation_modal_open"]], {
@@ -260,7 +261,6 @@ server <- function(input, output, session) {
   })
   
   output$alert_header <- renderUI({
-    print(rv$alerts)
     if (rv$alerts > 0L) {
       card(
         p(paste("You have ", rv$alerts, "alert(s).")),

@@ -9,6 +9,7 @@ library(RColorBrewer)
 library(yaml)
 
 source("constants.R")
+source("actions.R")
 source("alerts.R")
 source("import.R")
 source("cleanup.R")
@@ -42,7 +43,6 @@ ui <- page_navbar(
     theme = "dark"
   ),
   fillable = FALSE,
-  header = uiOutput("alert_header"),
   nav_panel(
     title = recent_data_id,
     card(
@@ -76,10 +76,6 @@ ui <- page_navbar(
   nav_panel(
     title = overlay_days_id,
     layout_columns(
-      # col_widths = c(3, 9),
-      # card(
-      #   uiOutput("date_annotation_file_ui")
-      # ),
       card(
         card_header("Overlaid days"),
         layout_sidebar(
@@ -94,13 +90,7 @@ ui <- page_navbar(
     )
   ),
   nav_spacer(),
-  # nav_menu(
-  #   title = "Links",
-  #   align = "right",
-  #   nav_item(tags$a("Posit", href = "https://posit.co")),
-  #   nav_item(tags$a("Shiny", href = "https://shiny.posit.co"))
-  # ),
-  # uiOutput("alert_nav_item"),
+  nav_item(shiny::actionLink("actions_icon", label = uiOutput("actions_icon"))),
   nav_item(shiny::actionLink("help_main", label = "", icon = icon("question-circle")))
 )
 
@@ -250,26 +240,21 @@ server <- function(input, output, session) {
     banner_plot_timeline_overlaid(rv$date_annotations, rv$custom_date_type_colors)
   })
   
-  observeEvent(input[["date_annotation_modal_open"]], {
+  observeEvent(input[["actions_icon"]], {
     showModal(
       modalDialog(
         size = "xl",
         easyClose = TRUE,
-        fileInput("date_annotation_file", label = "Date annotations", multiple = FALSE, accept = ".csv")
+        tagList(
+          h3("Actions available"),
+          get_actions_modal_ui(rv$date_annotations, rv$custom_date_type_colors)
+        )
       )
     )
   })
   
-  output$alert_header <- renderUI({
-    if (rv$alerts > 0L) {
-      card(
-        p(paste("You have ", rv$alerts, "alert(s).")),
-        style="color:#8a8a86;background-color:#f3f593;",
-        height = "60px",
-        gap = 10)
-    } else {
-      NULL
-    }
+  output$actions_icon <- renderUI({
+    tagList(emoji("bell"), " ", tags$sup("(", rv$alerts, ")"))
   })
 }
 

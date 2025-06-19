@@ -13,4 +13,4 @@ new_data <- bind_rows(
     type = "NA"
   )
 )
-write_csv(new_data, "../data/date_annotations.csv")
+write_csv(new_data, "../data/date_annotations.csv", col_names = FALSE)

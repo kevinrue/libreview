@@ -153,18 +153,18 @@ server <- function(input, output, session) {
     )
     if (!all(rv$date_annotations$type == "NA")) {
       out <- append(out, tagList(
-          shinyWidgets::pickerInput(
-            "day_type", "Type",
-            choices = day_types,
-            selected = day_types,
-            options = pickerOptions(
-              actionsBox = TRUE,
-              selectedTextFormat = "count > 3"
-            ),
-            multiple = TRUE
+        shinyWidgets::pickerInput(
+          "day_type", "Type",
+          choices = day_types,
+          selected = day_types,
+          options = pickerOptions(
+            actionsBox = TRUE,
+            selectedTextFormat = "count > 3"
           ),
-          checkboxInput("plot_timeline_overlaid_color_logical", "Color by type", value = TRUE)
-        )
+          multiple = TRUE
+        ),
+        checkboxInput("plot_timeline_overlaid_color_logical", "Color by type", value = TRUE)
+      )
       )
     }
     return(out)

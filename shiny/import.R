@@ -56,7 +56,7 @@ import_date_annotations <- function(date_annotations_file) {
         type = replace_na(type, "NA")
       )
   } else {
-    tibble(date = character(0), type = character(0))
+    tibble(date = character(0), type = factor(character(0)))
   }
 }
 

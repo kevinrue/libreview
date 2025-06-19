@@ -147,23 +147,25 @@ server <- function(input, output, session) {
   })
   
   output$date_annotation_file_ui <- renderUI({
+    isolate({day_types <- levels(rv$date_annotations$type)})
     out <- tagList(
       textInput("search_notes", label = "Search notes", value = "", placeholder = "Keyword")
     )
     if (!all(rv$date_annotations$type == "NA")) {
       out <- append(out, tagList(
-        shinyWidgets::pickerInput(
-          "day_type", "Type",
-          choices = levels(rv$date_annotations$type),
-          selected = levels(rv$date_annotations$type),
-          options = pickerOptions(
-            actionsBox = TRUE,
-            selectedTextFormat = "count > 3"
+          shinyWidgets::pickerInput(
+            "day_type", "Type",
+            choices = day_types,
+            selected = day_types,
+            options = pickerOptions(
+              actionsBox = TRUE,
+              selectedTextFormat = "count > 3"
+            ),
+            multiple = TRUE
           ),
-          multiple = TRUE
-        ),
-        checkboxInput("plot_timeline_overlaid_color_logical", "Color by type", value = TRUE)
-      ))
+          checkboxInput("plot_timeline_overlaid_color_logical", "Color by type", value = TRUE)
+        )
+      )
     }
     return(out)
   })
@@ -182,9 +184,9 @@ server <- function(input, output, session) {
           choices = levels(new_date_annotations$type),
           selected = levels(new_date_annotations$type),
         )
-        rv$date_annotations <- date_annotations
+        rv$date_annotations <- new_date_annotations
         rv$date_type_colors <- new_date_type_colors
-        rv$alerts <- count_alerts(date_annotations, rv$custom_date_type_colors)
+        rv$alerts <- count_alerts(new_date_annotations, rv$custom_date_type_colors)
         removeModal()
       }
     }

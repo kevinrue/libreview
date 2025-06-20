@@ -7,6 +7,7 @@ library(ComplexHeatmap)
 library(emoji)
 library(RColorBrewer)
 library(yaml)
+library(pcaMethods)
 
 source("constants.R")
 source("actions.R")
@@ -20,6 +21,7 @@ source("heatmap_time_recent.R")
 source("cluster_time_all.R")
 source("plot_timeline_overlaid.R")
 source("plot_histogram_recent.R")
+source("plot_pca.R")
 source("print_stats_all.R")
 source("help.R")
 
@@ -85,6 +87,23 @@ ui <- page_navbar(
           ),
           uiOutput("banner_plot_timeline_overlaid"),
           plotOutput("plot_timeline_overlaid", width = "100%", height = "400px")
+        )
+      )
+    )
+  ),
+  nav_panel(
+    title = pca_id,
+    layout_columns(
+      card(
+        card_header("PCA"),
+        layout_sidebar(
+          sidebar = sidebar(
+            open = "open", # "closed"
+            NULL
+            # uiOutput("date_annotation_file_ui")
+          ),
+          # uiOutput("banner_plot_timeline_overlaid"),
+          plotOutput("plot_pca", width = "100%", height = "400px")
         )
       )
     )
@@ -228,6 +247,14 @@ server <- function(input, output, session) {
     rv$glucose_data$historic,
     config,
     input[["recent_days"]]
+  )})
+  
+  observe({
+    rv$pca <- compute_pca(glucose_data)
+  })
+  
+  output$plot_pca <- renderPlot({plot_pca(
+    rv$pca, rv$date_annotations
   )})
   
   output$print_stats_all <- renderUI({print_stats_all(

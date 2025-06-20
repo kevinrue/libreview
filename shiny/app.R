@@ -8,6 +8,7 @@ library(emoji)
 library(RColorBrewer)
 library(yaml)
 library(pcaMethods)
+library(umap)
 
 source("constants.R")
 source("actions.R")
@@ -22,6 +23,7 @@ source("cluster_time_all.R")
 source("plot_timeline_overlaid.R")
 source("plot_histogram_recent.R")
 source("plot_pca.R")
+source("plot_umap.R")
 source("print_stats_all.R")
 source("help.R")
 
@@ -92,18 +94,25 @@ ui <- page_navbar(
     )
   ),
   nav_panel(
-    title = pca_id,
+    title = dimred_id,
     layout_columns(
       card(
-        card_header("PCA"),
+        card_header("Dimensionality reduction"),
         layout_sidebar(
           sidebar = sidebar(
             open = "open", # "closed"
             NULL
             # uiOutput("date_annotation_file_ui")
           ),
-          # uiOutput("banner_plot_timeline_overlaid"),
-          plotOutput("plot_pca", width = "100%", height = "400px")
+          navset_card_pill(
+            placement = "above",
+            nav_panel(title = "PCA",
+              plotOutput("plot_pca", width = "100%", height = "600px")
+            ),
+            nav_panel(title = "UMAP",
+              plotOutput("plot_umap", width = "100%", height = "600px")
+            )
+          )
         )
       )
     )
@@ -254,6 +263,10 @@ server <- function(input, output, session) {
   })
   
   output$plot_pca <- renderPlot({plot_pca(
+    rv$pca, rv$date_annotations
+  )})
+  
+  output$plot_umap <- renderPlot({plot_umap(
     rv$pca, rv$date_annotations
   )})
   

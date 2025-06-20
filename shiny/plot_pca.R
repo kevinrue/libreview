@@ -1,4 +1,4 @@
-compute_pca <- function(glucose_data, method = "ppca") {
+compute_pca <- function(glucose_data, method = "ppca", nPcs = 10) {
   glucose_data_historic <- glucose_data$historic
   if (is.null(glucose_data_historic)) {
     return(NULL)
@@ -33,7 +33,7 @@ compute_pca <- function(glucose_data, method = "ppca") {
     select(order(colnames(.))) %>% 
     column_to_rownames("Date") %>% 
     as.matrix()
-  pca_out <- pca(pca_data, method = method, center = TRUE, nPcs = 2)
+  pca_out <- pca(pca_data, method = method, center = FALSE, nPcs = nPcs)
   if (method == "bpca") { 
     rownames(pca_out@scores) <- rownames(pca_data)
     out <- pca_out

@@ -23,4 +23,4 @@ glucose_file_spec <- cols(
 page_navbar_id <- "page_navbar"
 recent_data_id <- "Recent data"
 overlay_days_id <- "Overlay days"
-pca_id <- "PCA"
+dimred_id <- "Dim. red."

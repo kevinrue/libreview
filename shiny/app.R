@@ -92,7 +92,7 @@ ui <- page_navbar(
           sidebar = sidebar(
             open = "open", # "closed"
             numericInput("dimred_point_size", "Point size", 5L, min = 1, max = 10),
-            numericInput("legend_text_size", "Legend text size", 14L, min = 1, max = 10)
+            numericInput("legend_text_size", "Legend text size", 14L, min = 1, max = 20)
             # uiOutput("date_annotation_file_ui")
           ),
           navset_card_pill(

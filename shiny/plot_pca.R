@@ -52,16 +52,45 @@ plot_pca <- function(pca_out, date_annotations,
   plot_data <- pca_out@scores %>%
     as.data.frame() %>%
     rownames_to_column("date") %>%
+    select(c("date", "PC1", "PC2")) %>% 
     mutate(date = format(ymd(date), "%d-%m-%Y")) %>%
     left_join(date_annotations, by = "date")
   
   label_data <- plot_data %>% 
     group_by(type) %>% 
     summarise(across(PC1:PC2, mean))
+  
+  # pca_chull_out <- sapply(
+  #   as.character(unique(plot_data$type)),
+  #   function(x) {
+  #     plot_data %>% 
+  #       filter(type == x) %>% 
+  #       select(c("PC1", "PC2")) %>% 
+  #       chull()
+  #   }
+  # )
+  # pca_chull_df
+  
+  hull_data <- do.call("rbind", lapply(
+    levels(plot_data$type),
+    function(x) {
+      type_data <- plot_data %>% filter(type == x)
+      if (nrow(type_data) < 3L) {
+        return(NULL)
+      }
+      hpts <- chull(type_data[, c("PC1", "PC2")])
+      hpts <- type_data[hpts, c("PC1", "PC2", "type")]
+      hpts <- rbind(hpts, hpts[1, ])
+      return(hpts)
+    }
+  ))
 
   ggplot(plot_data, aes(PC1, PC2, colour = type)) +
+    geom_polygon(aes(PC1, PC2, fill = type), data = hull_data, alpha = 0.1, show.legend = FALSE) +
     geom_point(size = point_size) +
-    geom_label(aes(label = type), data = label_data, show.legend = FALSE) +
+    geom_label(
+      mapping = aes(label = type), data = label_data, alpha = 0.5, show.legend = FALSE
+    ) +
     guides(
       colour = guide_legend(override.aes = list(size = 5L))
     ) +

@@ -45,7 +45,10 @@ compute_pca <- function(glucose_data, method = "ppca", nPcs = 10) {
   return(pca_out)
 }
 
-plot_pca <- function(pca_out, date_annotations, size = 3L) {
+plot_pca <- function(pca_out, date_annotations,
+  point_size = 5L,
+  legend_text_size = 12L
+) {
   plot_data <- pca_out@scores %>%
     as.data.frame() %>%
     rownames_to_column("date") %>%
@@ -57,12 +60,15 @@ plot_pca <- function(pca_out, date_annotations, size = 3L) {
     summarise(across(PC1:PC2, mean))
 
   ggplot(plot_data, aes(PC1, PC2, colour = type)) +
-    geom_point(size = size) +
+    geom_point(size = point_size) +
     geom_label(aes(label = type), data = label_data, show.legend = FALSE) +
     guides(
       colour = guide_legend(override.aes = list(size = 5L))
     ) +
-    theme_minimal()
+    theme_minimal() +
+    theme(
+      legend.text = element_text(size = legend_text_size)
+    )
 }
 
 # Testing ----

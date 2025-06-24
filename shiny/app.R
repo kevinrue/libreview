@@ -91,7 +91,7 @@ ui <- page_navbar(
         layout_sidebar(
           sidebar = sidebar(
             open = "open", # "closed"
-            NULL
+            numericInput("dimred_point_size", "Point size", 5L, min = 1, max = 10),
             # uiOutput("date_annotation_file_ui")
           ),
           navset_card_pill(
@@ -256,7 +256,8 @@ server <- function(input, output, session) {
   })
   
   output$plot_pca <- renderPlot({plot_pca(
-    rv$pca, rv$date_annotations
+    rv$pca, rv$date_annotations,
+    input[["dimred_point_size"]]
   )})
   
   output$plot_umap <- renderPlot({plot_umap(

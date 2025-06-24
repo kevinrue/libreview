@@ -2,6 +2,27 @@ default_glucose_files <- list.files("../data/glucose/", pattern = "*.csv$", full
 default_date_annotations_file <- "../data/date_annotations.csv"
 default_day_type_file <- "../data/date_type_colors.csv"
 
+import_app_data <- function() {
+  glucose_data <- import_glucose_data(default_glucose_files)
+  
+  date_annotations <- import_date_annotations(default_date_annotations_file)
+  date_annotations <- add_missing_date_annotations(glucose_data, date_annotations) %>% 
+    mutate(
+      type = refactor_na_last(type)
+    )
+  
+  date_type_colors <- import_date_type_colors(default_day_type_file)
+  
+  config <- read_yaml("config.yaml")
+  
+  return(list(
+    glucose_data = glucose_data,
+    date_annotations = date_annotations,
+    date_type_colors = date_type_colors,
+    config = config
+  ))
+}
+
 import_glucose_data <- function(glucose_files) {
   if(length(glucose_files) < 1L) {
     return(NULL)

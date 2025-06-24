@@ -27,17 +27,7 @@ source("plot_umap.R")
 source("print_stats_all.R")
 source("help.R")
 
-glucose_data <- import_glucose_data(default_glucose_files)
-
-date_annotations <- import_date_annotations(default_date_annotations_file)
-date_annotations <- add_missing_date_annotations(glucose_data, date_annotations) %>% 
-  mutate(
-    type = refactor_na_last(type)
-  )
-
-date_type_colors <- import_date_type_colors(default_day_type_file)
-
-config <- yaml::read_yaml("config.yaml")
+app_data <- import_app_data()
 
 ui <- page_navbar(
   id = page_navbar_id,
@@ -126,11 +116,14 @@ ui <- page_navbar(
 server <- function(input, output, session) {
   
   rv <- reactiveValues(
-    glucose_data = glucose_data,
-    date_annotations = date_annotations,
-    date_type_colors = date_type_colors,
-    custom_date_type_colors = !is.null(date_type_colors),
-    alerts = count_alerts(date_annotations, !is.null(date_type_colors))
+    glucose_data = app_data$glucose_data,
+    date_annotations = app_data$date_annotations,
+    date_type_colors = app_data$date_type_colors,
+    custom_date_type_colors = !is.null(app_data$date_type_colors),
+    alerts = count_alerts(
+      app_data$date_annotations,
+      !is.null(app_data$date_type_colors)
+    )
   )
   
   observeEvent(rv$glucose_data, {
@@ -222,7 +215,7 @@ server <- function(input, output, session) {
   
   output$plot_timeline_recent <- renderPlot({plot_timeline_recent(
     rv$glucose_data,
-    config,
+    app_data$config,
     input[["recent_days"]],
     input[["highlight_weekends"]],
     rv[["click_datetime"]]
@@ -236,7 +229,7 @@ server <- function(input, output, session) {
   output$plot_timeline_overlaid <- renderPlot({plot_timeline_overlaid(
     rv$glucose_data,
     rv$date_annotations,
-    config,
+    app_data$config,
     input[["day_type"]],
     input[["plot_timeline_overlaid_color_logical"]],
     rv$date_type_colors,
@@ -254,12 +247,12 @@ server <- function(input, output, session) {
   
   output$plot_histogram_recent <- renderPlot({plot_histogram_recent(
     rv$glucose_data$historic,
-    config,
+    app_data$config,
     input[["recent_days"]]
   )})
   
   observe({
-    rv$pca <- compute_pca(glucose_data)
+    rv$pca <- compute_pca(rv$glucose_data)
   })
   
   output$plot_pca <- renderPlot({plot_pca(

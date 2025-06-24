@@ -51,9 +51,14 @@ plot_pca <- function(pca_out, date_annotations) {
     rownames_to_column("date") %>%
     mutate(date = format(ymd(date), "%d-%m-%Y")) %>%
     left_join(date_annotations, by = "date")
+  
+  label_data <- plot_data %>% 
+    group_by(type) %>% 
+    summarise(across(PC1:PC2, mean))
 
   ggplot(plot_data, aes(PC1, PC2, colour = type)) +
     geom_point(size = 3) +
+    geom_label(aes(label = type), data = label_data, show.legend = FALSE) +
     theme_minimal()
 }
 

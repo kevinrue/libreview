@@ -1,5 +1,6 @@
 library(lubridate)
 library(readr)
+library(tidyverse)
 current_data <- read_csv("../data/date_annotations.csv", col_names = c("date", "type"))
 # tail(current_data)
 latest_annotated_date <- max(dmy(current_data$date))
